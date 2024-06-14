@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 
@@ -20,10 +22,11 @@ struct SysEvent {
 	struct SysEvent *evNext;
 	void *evPtr;
 	enum SysEventType evType;
-	int evTime;
-	int evValue;
-	int evValue2;
-	int evPtrLength;
+	int64_t evTime;
+	int64_t evValue;
+	int64_t evValue2;
+	size_t evPtrLength;
+	int64_t: 64;
 };
 
 struct MemChain {
@@ -183,6 +186,8 @@ static void SE_ClearEvent (struct SysEvent *ev)
 
 int main ()
 {
+	assert(sizeof(struct SysEvent) == 64);
+	printf("sizeof(struct SysEvent): %zu\n", sizeof(struct SysEvent));
 	for (size_t i = 0; i != EVENT_QUEUE_SIZE; ++i) {
 		struct SysEvent ev;
 		memset(&ev, 0, sizeof(ev));
