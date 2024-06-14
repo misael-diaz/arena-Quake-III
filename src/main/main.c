@@ -24,7 +24,7 @@ struct SysEvent {
 	void *evPtr;
 	enum SysEventType evType;
 	int64_t evTime;
-	int64_t evValue;
+	int64_t evValue1;
 	int64_t evValue2;
 	size_t evPtrLength;
 	int64_t: 64;
