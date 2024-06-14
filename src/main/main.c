@@ -176,6 +176,11 @@ static size_t SE_SzQueue (void)
 	return eventQueueSize;
 }
 
+static void SE_ClearEvent (struct SysEvent *ev)
+{
+	ev->evPtr = Util_Free(ev->evPtr);
+}
+
 int main ()
 {
 	struct SysEvent ev;
@@ -185,7 +190,8 @@ int main ()
 	}
 	printf("size: %zu\n", SE_SzQueue());
 	for (size_t i = 0; i != EVENT_QUEUE_SIZE; ++i) {
-		SE_DeQueue();
+		struct SysEvent ev = SE_DeQueue();
+		SE_ClearEvent(&ev);
 	}
 	printf("size: %zu\n", SE_SzQueue());
 	return 0;
