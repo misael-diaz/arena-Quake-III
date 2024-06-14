@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #define EVENT_QUEUE_SIZE 256
 #define EVENT_QUEUE_MAX EVENT_QUEUE_SIZE
@@ -20,10 +23,11 @@ struct SysEvent {
 	struct SysEvent *evNext;
 	void *evPtr;
 	enum SysEventType evType;
-	int evTime;
-	int evValue;
-	int evValue2;
-	int evPtrLength;
+	int64_t evTime;
+	int64_t evValue1;
+	int64_t evValue2;
+	size_t evPtrSize;
+	int64_t: 64;
 };
 
 struct MemChain {
@@ -176,16 +180,40 @@ static size_t SE_SzQueue (void)
 	return eventQueueSize;
 }
 
+static void SE_ClearEvent (struct SysEvent *ev)
+{
+	ev->evPtr = Util_Free(ev->evPtr);
+}
+
+static int64_t Sys_ClockNanoSeconds (void)
+{
+	struct timespec tp;
+	int err = clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+	if (err) {
+		fprintf(stderr, "Sys_ClockNanoSeconds: %s\n", strerror(errno));
+		Util_Clear();
+		exit(EXIT_FAILURE);
+	}
+	int64_t time = ((1000000000L * tp.tv_sec) + tp.tv_nsec);
+	return time;
+}
+
 int main ()
 {
-	struct SysEvent ev;
-	memset(&ev, 0, sizeof(ev));
+	assert(sizeof(struct SysEvent) == 64);
+	printf("sizeof(struct SysEvent): %zu\n", sizeof(struct SysEvent));
 	for (size_t i = 0; i != EVENT_QUEUE_SIZE; ++i) {
+		struct SysEvent ev;
+		memset(&ev, 0, sizeof(ev));
+		ev.evTime = Sys_ClockNanoSeconds();
+		ev.evPtr = Util_CopyString("fake event data");
+		ev.evPtrSize = (1 + strlen(ev.evPtr));
 		SE_EmQueue(ev);
 	}
 	printf("size: %zu\n", SE_SzQueue());
 	for (size_t i = 0; i != EVENT_QUEUE_SIZE; ++i) {
-		SE_DeQueue();
+		struct SysEvent ev = SE_DeQueue();
+		SE_ClearEvent(&ev);
 	}
 	printf("size: %zu\n", SE_SzQueue());
 	return 0;
