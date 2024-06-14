@@ -183,9 +183,11 @@ static void SE_ClearEvent (struct SysEvent *ev)
 
 int main ()
 {
-	struct SysEvent ev;
-	memset(&ev, 0, sizeof(ev));
 	for (size_t i = 0; i != EVENT_QUEUE_SIZE; ++i) {
+		struct SysEvent ev;
+		memset(&ev, 0, sizeof(ev));
+		ev.evPtr = Util_CopyString("fake event data");
+		ev.evPtrLength = 1 + strlen(ev.evPtr);
 		SE_EmQueue(ev);
 	}
 	printf("size: %zu\n", SE_SzQueue());
