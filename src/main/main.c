@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #define EVENT_QUEUE_SIZE 256
 #define EVENT_QUEUE_MAX EVENT_QUEUE_SIZE
@@ -184,6 +185,19 @@ static void SE_ClearEvent (struct SysEvent *ev)
 	ev->evPtr = Util_Free(ev->evPtr);
 }
 
+static int64_t Sys_ClockNanoSeconds (void)
+{
+	struct timespec tp;
+	int err = clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+	if (err) {
+		fprintf(stderr, "Sys_ClockNanoSeconds: %s\n", strerror(errno));
+		Util_Clear();
+		exit(EXIT_FAILURE);
+	}
+	int64_t time = ((1000000000L * tp.tv_sec) + tp.tv_nsec);
+	return time;
+}
+
 int main ()
 {
 	assert(sizeof(struct SysEvent) == 64);
@@ -191,6 +205,7 @@ int main ()
 	for (size_t i = 0; i != EVENT_QUEUE_SIZE; ++i) {
 		struct SysEvent ev;
 		memset(&ev, 0, sizeof(ev));
+		ev.evTime = Sys_ClockNanoSeconds();
 		ev.evPtr = Util_CopyString("fake event data");
 		ev.evPtrLength = 1 + strlen(ev.evPtr);
 		SE_EmQueue(ev);
