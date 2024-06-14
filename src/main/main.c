@@ -26,7 +26,7 @@ struct SysEvent {
 	int64_t evTime;
 	int64_t evValue1;
 	int64_t evValue2;
-	size_t evPtrLength;
+	size_t evPtrSize;
 	int64_t: 64;
 };
 
@@ -207,7 +207,7 @@ int main ()
 		memset(&ev, 0, sizeof(ev));
 		ev.evTime = Sys_ClockNanoSeconds();
 		ev.evPtr = Util_CopyString("fake event data");
-		ev.evPtrLength = 1 + strlen(ev.evPtr);
+		ev.evPtrSize = (1 + strlen(ev.evPtr));
 		SE_EmQueue(ev);
 	}
 	printf("size: %zu\n", SE_SzQueue());
