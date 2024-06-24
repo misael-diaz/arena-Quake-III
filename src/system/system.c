@@ -1,9 +1,31 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
 
-int main ()
+#include "util.h"
+#include "system.h"
+
+int64_t Sys_ClockNanoSeconds (void)
 {
-	printf("quake\n");
-	return 0;
+	struct timespec tp;
+	int err = clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+	if (err) {
+		fprintf(stderr, "Sys_ClockNanoSeconds: %s\n", strerror(errno));
+		Util_Clear();
+		exit(EXIT_FAILURE);
+	}
+	int64_t time = ((1000000000L * tp.tv_sec) + tp.tv_nsec);
+	return time;
+}
+
+int64_t Sys_ElapsedTime (struct timespec *tp_start, struct timespec *tp_end)
+{
+	int64_t etime = (((int64_t) (1.0e9)) * (tp_end->tv_sec - tp_start->tv_sec) +
+			(tp_end->tv_nsec - tp_start->tv_nsec));
+	return etime;
 }
 
 /*
@@ -11,7 +33,7 @@ int main ()
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: src/system/system.c
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

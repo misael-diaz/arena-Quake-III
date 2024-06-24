@@ -1,17 +1,16 @@
-#include <stdio.h>
+#ifndef GUARD_QUAKE_GAME_H
+#define GUARD_QUAKE_GAME_H
 
-int main ()
-{
-	printf("quake\n");
-	return 0;
-}
+void Game_Loop(void);
+
+#endif
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: include/game.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 
