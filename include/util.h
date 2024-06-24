@@ -1,17 +1,19 @@
-#include <stdio.h>
+#ifndef GUARD_QUAKE_UTIL_H
+#define GUARD_QUAKE_UTIL_H
 
-int main ()
-{
-	printf("quake\n");
-	return 0;
-}
+void Util_Clear(void);
+void *Util_Free(void *p);
+void *Util_Malloc(size_t const sz);
+char *Util_CopyString(const char *string);
+
+#endif
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: include/util.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

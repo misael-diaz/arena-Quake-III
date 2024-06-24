@@ -1,8 +1,8 @@
 #!/usr/bin/make
 #
-# Quake-III				June 07, 2024
+# Quake-III						June 07, 2024
 #
-# source: Makefile
+# source: src/main/Makefile
 # author: @misael-diaz
 #
 # Synopsis:
@@ -14,15 +14,12 @@
 # (at your option) any later version.
 #
 
-all: quake3
+include make-inc
 
-utils:
-	@$(MAKE) -C util
-systems: utils
-	@$(MAKE) -C system
-quake3: systems
-	@$(MAKE) -C main
+all: $(SYSTEM_O)
+
+$(SYSTEM_O): $(HEADERS) $(SYSTEM_C)
+	$(CC) $(INC) $(CCOPT) -c $(SYSTEM_C) -o $(SYSTEM_O)
+
 clean:
-	@$(MAKE) -C util clean
-	@$(MAKE) -C system clean
-	@$(MAKE) -C main clean
+	/bin/rm -f *.o

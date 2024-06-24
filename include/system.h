@@ -1,17 +1,17 @@
-#include <stdio.h>
+#ifndef GUARD_QUAKE_SYSTEM_H
+#define GUARD_QUAKE_SYSTEM_H
 
-int main ()
-{
-	printf("quake\n");
-	return 0;
-}
+int64_t Sys_ClockNanoSeconds(void);
+int64_t Sys_ElapsedTime(struct timespec *tp_start, struct timespec *tp_end);
+
+#endif
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: src/system/system.c
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 
