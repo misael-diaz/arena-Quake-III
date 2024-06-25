@@ -1,3 +1,6 @@
+*assets
+*.err
+*.log
 *.zip
 *.swp
 *.swo
