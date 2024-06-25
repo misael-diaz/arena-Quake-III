@@ -14,13 +14,13 @@
 # (at your option) any later version.
 #
 
-all: quake3
+all: Quake
 
-utils:
+Util:
 	@$(MAKE) -C util
-systems: utils
+System: Util
 	@$(MAKE) -C system
-quake3: systems
+Quake: System
 	@$(MAKE) -C main
 clean:
 	@$(MAKE) -C util clean
