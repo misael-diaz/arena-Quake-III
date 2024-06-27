@@ -1,12 +1,11 @@
-#!/usr/bin/make
 #
 # Quake-III						June 07, 2024
 #
-# source: src/util/Makefile
+# source: src/video/make-inc
 # author: @misael-diaz
 #
 # Synopsis:
-# Defines the Makefile for building the program with GNU make.
+# Defines the include file for building the program with GNU make.
 #
 # Copyright (c) 2024 Misael Díaz-Maldonado
 # This file is released under the GNU General Public License as published
@@ -14,12 +13,8 @@
 # (at your option) any later version.
 #
 
-include make-inc
-
-all: $(UTIL_O)
-
-$(UTIL_O): $(HEADERS) $(UTIL_C)
-	$(CC) $(INC) $(CCOPT) -c $(UTIL_C) -o $(UTIL_O)
-
-clean:
-	/bin/rm -f *.o
+INC = -I../../include
+VIDEO_H = ../../include/client/video.h
+HEADERS = $(VIDEO_H)
+VIDEO_C = video.c
+VIDEO_O = video.o
