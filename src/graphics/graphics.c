@@ -301,7 +301,7 @@ static void shiftmasks_init (void)
 	bitshifts_initialized = true;
 }
 
-static uint32_t RGB32 (uint64_t r, uint64_t g, uint64_t b)
+static unsigned int RGB32 (unsigned long r, unsigned long g, unsigned long b)
 {
 	if (!bitshifts_initialized) {
 		shiftmasks_init();
@@ -312,6 +312,29 @@ static uint32_t RGB32 (uint64_t r, uint64_t g, uint64_t b)
 	p |= ((g << bitshift_green) & visual->green_mask);
 	p |= ((b << bitshift_blue) & visual->blue_mask);
 	return (p & 0x00000000ffffffff);
+}
+
+void Draw_CheckeredPattern (void)
+{
+	int const width = 64;
+	int const height = 64;
+	if (width > Video.width || height > Video.height) {
+		fprintf(stderr, "Draw_CheckeredPattern: would exceed video dims\n");
+		return;
+	}
+	unsigned int size = (Video.bufferSize / 4);
+	unsigned int const rowSize = (Video.rowBytes / 4);
+	unsigned int *buffer = (unsigned int*) Video.buffer;
+	unsigned int *p = buffer;
+	for (unsigned int k = 0; k != size; ++k) {
+		unsigned int i = ((k % rowSize) / width);
+		unsigned int j = ((k / rowSize) / height);
+		if ((i % 2) ^ (j % 2)) {
+			p[k] = RGB32(128, 128, 128);
+		} else {
+			p[k] = RGB32(0, 0, 0);
+		}
+	}
 }
 
 void Graphics_InitTextures (void)
@@ -376,8 +399,9 @@ static void Graphics_ImpEndFrame (void)
 	}
 
 	memset(Video.buffer, 0, Video.bufferSize);
-	Draw_Fill(000, 000, 640, 512, RGB32(128, 128, 128));
-	Draw_Fill(640, 512, 640, 512, RGB32(128, 128, 128));
+	Draw_CheckeredPattern();
+	Draw_Fill(0, 0, Video.width, 0.75 * Video.height, RGB32(0, 0, 255));
+
 	XPutImage(display,
 		  window,
 		  gc,
