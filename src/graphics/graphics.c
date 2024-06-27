@@ -101,7 +101,7 @@ static XImage *framebuffer = NULL;
 static struct Image *r_notexture_mip = NULL;
 static struct ClipPlane view_clipplanes[4];
 static uint32_t table[256];
-static Byte palette[1024];
+static uint32_t curpalette[256];
 static Byte r_notexture_buffer[1024];
 static Byte mod_novis[MODEL_NOVIS_SIZE];
 static uint64_t bitshift_red = 0;
@@ -215,6 +215,67 @@ void Draw_BuildGammaTable (void)
 	}
 }
 
+void Draw_Fill (int x, int y, int width, int height, int color)
+{
+	if (!Video.buffer) {
+		fprintf(stderr, "Draw_Fill: NullVidBufferError\n");
+		return;
+	}
+
+	if (!Video.rowBytes) {
+		fprintf(stderr, "Draw_Fill: VidSetError\n");
+		return;
+	}
+
+	if ((width < 0) || (height < 0)) {
+		fprintf(stderr, "Draw_Fill: InvalidDimsError\n");
+		return;
+	}
+
+	if (x < 0) {
+		fprintf(stderr, "Draw_Fill: Fixing X Position\n");
+		width += (-x);
+		x = 0;
+	}
+
+	if (y < 0) {
+		fprintf(stderr, "Draw_Fill: Fixing Y Position\n");
+		height += (-y);
+		y = 0;
+	}
+
+	if ((x + width) > Video.width) {
+		if (x == 0) {
+			fprintf(stderr, "Draw_Fill: BigDimsError\n");
+			return;
+		}
+		fprintf(stderr, "Draw_Fill: Fixing Width\n");
+		width = (Video.width - x);
+	}
+
+	if ((y + height) > Video.height) {
+		if (y == 0) {
+			fprintf(stderr, "Draw_Fill: BigDimsError\n");
+			return;
+		}
+		fprintf(stderr, "Draw_Fill: Fixing Height\n");
+		height = (Video.height - y);
+	}
+
+	// FIXME: could overflow if x, y exceed their respective thresholds
+	Byte c = (color & 0xff);
+	Byte *p = Video.buffer + Video.rowBytes * y + x;
+	int jy = 0, ix = 0;
+	for (jy = 0; jy != height; ++jy) {
+		for (ix = 0; ix != width; ++ix) {
+			p[4 * ix + 0] = c;
+			p[4 * ix + 1] = c;
+			p[4 * ix + 2] = c;
+		}
+		p += Video.rowBytes;
+	}
+}
+
 static void shiftmasks_init (void)
 {
 	if (!visual) {
@@ -314,6 +375,8 @@ static void Graphics_ImpEndFrame (void)
 		return;
 	}
 
+	memset(Video.buffer, 0, Video.bufferSize);
+	Draw_Fill(0, 0, 640, 512, 128);
 	XPutImage(display,
 		  window,
 		  gc,
@@ -350,6 +413,7 @@ static void ResetFrameBuffer (void)
 		exit(EXIT_FAILURE);
 	}
 	memset(data, 0, bytes);
+	memcpy(data, table, sizeof(table));
 	fprintf(stdout, "ResetFrameBuffer: pwidth: %d\n", pwidth);
 	fprintf(stdout, "ResetFrameBuffer: framebuffer-size: 0x%x\n", bytes);
 
@@ -370,6 +434,7 @@ static void ResetFrameBuffer (void)
 
 	Video.rowBytes = framebuffer->bytes_per_line;
         Video.buffer = (Byte*) framebuffer->data;
+	Video.bufferSize = bytes;
 }
 
 static void Graphics_ImpShutdown (void)
@@ -510,7 +575,7 @@ static void Graphics_ImpSetPalette (Byte const *palette)
 		uint64_t r = palette[4 * i + 0];
 		uint64_t g = palette[4 * i + 1];
 		uint64_t b = palette[4 * i + 2];
-		table[i] = RGB32(r, g, b);
+		curpalette[i] = RGB32(r, g, b);
 	}
 }
 
@@ -524,7 +589,7 @@ void Graphics_GammaCorrectAndSetPalette (Byte const *palette)
 		currentpalette[4 * i + 2] = gammatable[palette[4 * i + 2]];
 	}
 
-	Graphics_ImpSetPalette(GraphState.currentpalette);
+	Graphics_ImpSetPalette(currentpalette);
 }
 
 static enum GraphicsErrorType Graphics_ImpSetMode (int *width,
@@ -545,7 +610,7 @@ static enum GraphicsErrorType Graphics_ImpSetMode (int *width,
 		return GERR_INVALID_MODE;
 	}
 
-	Graphics_GammaCorrectAndSetPalette((Byte const*) table);
+	Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
 
 	return GERR_OK;
 }
@@ -560,14 +625,14 @@ void Graphics_InitGraphics (int width, int height)
 	Video.width = width;
 	Video.height = height;
 
-	Graphics_GammaCorrectAndSetPalette((Byte const*) table);
+	Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
 }
 
 void Graphics_BeginFrame (void)
 {
 	if (vid_gamma.modified) {
 		Draw_BuildGammaTable();
-		Graphics_GammaCorrectAndSetPalette((Byte const*) table);
+		Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
 		vid_gamma.modified = false;
 	}
 
@@ -587,7 +652,6 @@ void Graphics_BeginFrame (void)
 		vid_fullscreen.modified = false;
 		graphics_mode.modified = false;
 	}
-
 }
 
 void Graphics_Register (void)

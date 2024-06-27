@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
@@ -8,7 +7,7 @@
 #include "util.h"
 #include "system.h"
 
-int64_t Sys_ClockNanoSeconds (void)
+long Sys_ClockNanoSeconds (void)
 {
 	struct timespec tp;
 	int err = clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
@@ -17,15 +16,45 @@ int64_t Sys_ClockNanoSeconds (void)
 		Util_Clear();
 		exit(EXIT_FAILURE);
 	}
-	int64_t time = ((1000000000L * tp.tv_sec) + tp.tv_nsec);
+	long time = ((1000000000L * tp.tv_sec) + tp.tv_nsec);
 	return time;
 }
 
-int64_t Sys_ElapsedTime (struct timespec *tp_start, struct timespec *tp_end)
+long Sys_ElapsedTime (struct timespec *tp_start, struct timespec *tp_end)
 {
-	int64_t etime = (((int64_t) (1.0e9)) * (tp_end->tv_sec - tp_start->tv_sec) +
+	long etime = (((long) (1.0e9)) * (tp_end->tv_sec - tp_start->tv_sec) +
 			(tp_end->tv_nsec - tp_start->tv_nsec));
 	return etime;
+}
+
+void Sys_DelayMillis (void)
+{
+	struct timespec tp;
+	clockid_t clockid = CLOCK_MONOTONIC;
+	int const err = clock_gettime(clockid, &tp);
+	if (err) {
+		fprintf(stderr, "Sys_DelayMillisec: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	do {
+		time_t const sec = tp.tv_sec;
+		long const nsec = (tp.tv_nsec + 1000000L);
+		struct timespec tp_target;
+		if (nsec > 999999999L) {
+			tp_target.tv_sec = (1 + sec);
+			tp_target.tv_nsec = (nsec % 999999999L);
+		} else {
+			tp_target.tv_sec = sec;
+			tp_target.tv_nsec = nsec;
+		}
+		int const flags = TIMER_ABSTIME;
+		int const err = clock_nanosleep(clockid, flags, &tp_target, NULL);
+		if (err && err != EINTR) {
+			fprintf(stderr, "Sys_DelayMillisec: unexpected error %d\n", err);
+			exit(EXIT_FAILURE);
+		}
+	} while (err == EINTR);
 }
 
 /*

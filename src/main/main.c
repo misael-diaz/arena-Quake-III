@@ -2,6 +2,7 @@
 
 #include "util.h"
 #include "graphics.h"
+#include "system.h"
 
 int main ()
 {
@@ -9,6 +10,7 @@ int main ()
 	Graphics_Init();
 	Graphics_EndFrame();
 	for (int i = 0; i != 256; ++i) {
+		Sys_DelayMillis();
 		Graphics_BeginFrame();
 		Graphics_EndFrame();
 	}

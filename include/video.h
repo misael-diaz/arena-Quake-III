@@ -11,7 +11,7 @@ struct Video {
 	int rowBytes;
 	int width;
 	int height;
-	int: 32;
+	int bufferSize;
 	long: 64;
 	long: 64;
 	long: 64;
