@@ -1,11 +1,21 @@
 #include <stdio.h>
+#include <assert.h>
+#include <endian.h>
 
 #include "util.h"
 #include "graphics.h"
 #include "system.h"
 
+static void asserts (void)
+{
+	static_assert(__BYTE_ORDER == __LITTLE_ENDIAN);
+	static_assert(sizeof(int) == 4);
+	static_assert(sizeof(long) == 8);
+}
+
 int main ()
 {
+	asserts();
 	printf("quake\n");
 	Graphics_Init();
 	Graphics_EndFrame();

@@ -263,16 +263,16 @@ void Draw_Fill (int x, int y, int width, int height, int color)
 	}
 
 	// FIXME: could overflow if x, y exceed their respective thresholds
-	Byte c = (color & 0xff);
-	Byte *p = Video.buffer + Video.rowBytes * y + x;
+	int const c = color;
+	int offset = (Video.rowBytes / 4);
+	int *buffer = (int*) Video.buffer;
+	int *p = buffer + offset * y + x;
 	int jy = 0, ix = 0;
 	for (jy = 0; jy != height; ++jy) {
 		for (ix = 0; ix != width; ++ix) {
-			p[4 * ix + 0] = c;
-			p[4 * ix + 1] = c;
-			p[4 * ix + 2] = c;
+			p[ix] = c;
 		}
-		p += Video.rowBytes;
+		p += offset;
 	}
 }
 
@@ -376,7 +376,8 @@ static void Graphics_ImpEndFrame (void)
 	}
 
 	memset(Video.buffer, 0, Video.bufferSize);
-	Draw_Fill(0, 0, 640, 512, 128);
+	Draw_Fill(000, 000, 640, 512, RGB32(128, 128, 128));
+	Draw_Fill(640, 512, 640, 512, RGB32(128, 128, 128));
 	XPutImage(display,
 		  window,
 		  gc,
