@@ -1,7 +1,7 @@
 #
-# Quake-III					June 07, 2024
+# Quake-III						June 07, 2024
 #
-# source: make-inc
+# source: src/video/make-inc
 # author: @misael-diaz
 #
 # Synopsis:
@@ -13,6 +13,8 @@
 # (at your option) any later version.
 #
 
-CC = gcc-10
-CCOPT = -g -Wall -Wextra -Wformat -O0
-LIBS = -lX11
+INC = -I../../include
+VIDEO_H = ../../include/video.h
+HEADERS = $(VIDEO_H)
+VIDEO_C = video.c
+VIDEO_O = video.o

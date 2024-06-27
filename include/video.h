@@ -1,28 +1,33 @@
-#include <stdio.h>
+#ifndef GUARD_QUAKE_VIDEO_H
+#define GUARD_QUAKE_VIDEO_H
 
-#include "util.h"
-#include "graphics.h"
+#include <stdbool.h>
+#include "types/Byte.h"
 
-int main ()
-{
-	printf("quake\n");
-	Graphics_Init();
-	Graphics_EndFrame();
-	for (int i = 0; i != 256; ++i) {
-		Graphics_BeginFrame();
-		Graphics_EndFrame();
-	}
-	Graphics_Free();
-	Util_Clear();
-	return 0;
-}
+struct Video {
+	Byte *buffer;
+	Byte *colormap;
+	Byte *alphamap;
+	int rowBytes;
+	int width;
+	int height;
+	int: 32;
+	long: 64;
+	long: 64;
+	long: 64;
+}; // viddef_t
+
+void VID_NewVideo(int width, int height);
+bool VID_GetModeInfo(int *width, int *height, int mode);
+
+#endif
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: include/client/video.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

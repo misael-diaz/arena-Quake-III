@@ -1,28 +1,16 @@
-#include <stdio.h>
+#ifndef GUARD_QUAKE_BYTE_H
+#define GUARD_QUAKE_BYTE_H
 
-#include "util.h"
-#include "graphics.h"
+typedef unsigned char Byte;
 
-int main ()
-{
-	printf("quake\n");
-	Graphics_Init();
-	Graphics_EndFrame();
-	for (int i = 0; i != 256; ++i) {
-		Graphics_BeginFrame();
-		Graphics_EndFrame();
-	}
-	Graphics_Free();
-	Util_Clear();
-	return 0;
-}
+#endif
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: include/types/Byte.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

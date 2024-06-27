@@ -1,28 +1,20 @@
-#include <stdio.h>
+#ifndef GUARD_QUAKE_GRAPHICS_H
+#define GUARD_QUAKE_GRAPHICS_H
 
-#include "util.h"
-#include "graphics.h"
+void Graphics_Init(void);
+void Graphics_BeginFrame(void);
+void Graphics_EndFrame(void);
+void Graphics_Shutdown(void);
+void Graphics_Free(void);
 
-int main ()
-{
-	printf("quake\n");
-	Graphics_Init();
-	Graphics_EndFrame();
-	for (int i = 0; i != 256; ++i) {
-		Graphics_BeginFrame();
-		Graphics_EndFrame();
-	}
-	Graphics_Free();
-	Util_Clear();
-	return 0;
-}
+#endif
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/main/main.c
+source: include/graphics.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

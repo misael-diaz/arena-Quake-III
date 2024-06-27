@@ -22,7 +22,7 @@ $(BIN): $(MAIN_O)
 	$(CC) $(CCOPT) $(OBJECTS_O) -o $(BIN) $(LIBS)
 
 $(MAIN_O): $(HEADERS) $(MAIN_C)
-	$(CC) $(CCOPT) -c $(MAIN_C) -o $(MAIN_O)
+	$(CC) $(INC) $(CCOPT) -c $(MAIN_C) -o $(MAIN_O)
 
 clean:
 	/bin/rm -f *.o *.bin

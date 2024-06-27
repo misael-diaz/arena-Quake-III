@@ -13,7 +13,23 @@
 # (at your option) any later version.
 #
 
+INC = -I../../include
+GRAPHICS_H = ../../include/util.h
+GRAPHICS_H = ../../include/graphics.h
+HEADERS = $(UTIL_H)\
+	  $(GRAPHICS_H)
+
+UTIL_C = util/util.c
+VIDEO_C = video/video.c
+GRAPHICS_C = graphics/graphics.c
 MAIN_C = main.c
+
+UTIL_O = ../util/util.o
+VIDEO_O = ../video/video.o
+GRAPHICS_O = ../graphics/graphics.o
 MAIN_O = main.o
-OBJECTS_O = $(MAIN_O)
+OBJECTS_O = $(UTIL_O)\
+	    $(VIDEO_O)\
+	    $(GRAPHICS_O)\
+	    $(MAIN_O)
 BIN = quake-III.bin

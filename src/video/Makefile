@@ -1,8 +1,8 @@
 #!/usr/bin/make
 #
-# Quake-III				June 07, 2024
+# Quake-III						June 07, 2024
 #
-# source: Makefile
+# source: src/video/Makefile
 # author: @misael-diaz
 #
 # Synopsis:
@@ -14,21 +14,12 @@
 # (at your option) any later version.
 #
 
-all: Quake
+include make-inc
 
-Util:
-	@$(MAKE) -C util
-Video:
-	@$(MAKE) -C video
-Graphics: Video
-	@$(MAKE) -C graphics
-System: Util
-	@$(MAKE) -C system
-Quake: Graphics System
-	@$(MAKE) -C main
+all: $(VIDEO_O)
+
+$(VIDEO_O): $(HEADERS) $(VIDEO_C)
+	$(CC) $(INC) $(CCOPT) -c $(VIDEO_C) -o $(VIDEO_O)
+
 clean:
-	@$(MAKE) -C util clean
-	@$(MAKE) -C video clean
-	@$(MAKE) -C graphics clean
-	@$(MAKE) -C system clean
-	@$(MAKE) -C main clean
+	/bin/rm -f *.o
