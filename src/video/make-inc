@@ -14,7 +14,7 @@
 #
 
 INC = -I../../include
-VIDEO_H = ../../include/client/video.h
+VIDEO_H = ../../include/video.h
 HEADERS = $(VIDEO_H)
 VIDEO_C = video.c
 VIDEO_O = video.o

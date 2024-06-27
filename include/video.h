@@ -2,10 +2,19 @@
 #define GUARD_QUAKE_VIDEO_H
 
 #include <stdbool.h>
+#include "types/Byte.h"
 
 struct Video {
+	Byte *buffer;
+	Byte *colormap;
+	Byte *alphamap;
+	int rowBytes;
 	int width;
 	int height;
+	int: 32;
+	long: 64;
+	long: 64;
+	long: 64;
 }; // viddef_t
 
 void VID_NewVideo(int width, int height);

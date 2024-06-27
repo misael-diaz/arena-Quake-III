@@ -1,8 +1,19 @@
 #include <stdio.h>
 
+#include "util.h"
+#include "graphics.h"
+
 int main ()
 {
 	printf("quake\n");
+	Graphics_Init();
+	Graphics_EndFrame();
+	for (int i = 0; i != 256; ++i) {
+		Graphics_BeginFrame();
+		Graphics_EndFrame();
+	}
+	Graphics_Free();
+	Util_Clear();
 	return 0;
 }
 

@@ -1,7 +1,7 @@
 #
-# Quake-III					June 07, 2024
+# Quake-III						June 07, 2024
 #
-# source: make-inc
+# source: src/graphics/make-inc
 # author: @misael-diaz
 #
 # Synopsis:
@@ -13,6 +13,9 @@
 # (at your option) any later version.
 #
 
-CC = gcc-10
-CCOPT = -g -Wall -Wextra -Wformat -O0
-LIBS = -lX11
+INC = -I../../include
+UTIL_H = ../../include/util.h
+GRAPHICS_H = ../../include/graphics.h
+HEADERS = $(UTIL_H) $(GRAPHICS_H)
+GRAPHICS_C = graphics.c
+GRAPHICS_O = graphics.o
