@@ -1,8 +1,11 @@
 #ifndef GUARD_QUAKE_SYSTEM_H
 #define GUARD_QUAKE_SYSTEM_H
 
-int64_t Sys_ClockNanoSeconds(void);
-int64_t Sys_ElapsedTime(struct timespec *tp_start, struct timespec *tp_end);
+#include <time.h>
+
+void Sys_DelayMillis(void);
+long Sys_ClockNanoSeconds(void);
+long Sys_ElapsedTime(struct timespec *tp_start, struct timespec *tp_end);
 
 #endif
 
