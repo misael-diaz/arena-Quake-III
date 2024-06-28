@@ -19,7 +19,7 @@ int main ()
 	printf("quake\n");
 	Graphics_Init();
 	Graphics_EndFrame();
-	for (int i = 0; i != 64; ++i) {
+	for (int i = 0; i != 256; ++i) {
 		Sys_DelayMillis();
 		Graphics_BeginFrame();
 		Graphics_EndFrame();
