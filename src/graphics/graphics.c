@@ -383,13 +383,9 @@ void Draw_PatchQuakePalette (void)
 		}
 	}
 
-	// and we need to swap Red and Blue to get the right palette
 	Byte const *src = (Byte const*) palette;
-	Byte *dst = (Byte*) table;
 	for (int i = 0; i != 1024; i += 4) {
-		dst[i + 0] = src[i + 2];
-		dst[i + 1] = src[i + 1];
-		dst[i + 2] = src[i + 0];
+		table[(i / 4)] = RGB32(src[i + 0], src[i + 1], src[i + 2]);
 	}
 }
 
@@ -762,10 +758,10 @@ void Graphics_Init (void)
 
 	Graphics_Register();
 	Draw_GetPalette();
-	Draw_PatchQuakePalette();
 	Graphics_ImpInit();
 
 	Graphics_BeginFrame();
+	Draw_PatchQuakePalette();
 }
 
 /*
