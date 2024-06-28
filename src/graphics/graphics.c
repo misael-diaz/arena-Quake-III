@@ -101,6 +101,7 @@ static XImage *framebuffer = NULL;
 static struct Image *r_notexture_mip = NULL;
 static struct ClipPlane view_clipplanes[4];
 static uint32_t table[256];
+static uint32_t palette[256];
 static uint32_t curpalette[256];
 static Byte r_notexture_buffer[1024];
 static Byte mod_novis[MODEL_NOVIS_SIZE];
@@ -187,6 +188,7 @@ static void LoadPalette (void)
 		palette[4 * n + 0] = data[i + 0];
 		palette[4 * n + 1] = data[i + 1];
 		palette[4 * n + 2] = data[i + 2];
+		palette[4 * n + 3] = 0xff;
 	}
 
 	for (size_t i = 0; i != len; i +=3) {
@@ -337,6 +339,60 @@ void Draw_CheckeredPattern (void)
 	}
 }
 
+void Draw_ShowQuakePalette (void)
+{
+	unsigned int const height = (Video.height / 2);
+	unsigned int const width = 256;
+	unsigned int const rowSize = (Video.rowBytes / 4);
+	unsigned int const offset = rowSize;
+	unsigned int *buffer = (unsigned int*) Video.buffer;
+	unsigned int *p = buffer;
+	for (unsigned int j = 0; j != height; ++j) {
+		for (unsigned int i = 0; i != width; ++i) {
+			p[4 * i + 0] = table[i];
+			p[4 * i + 1] = table[i];
+			p[4 * i + 2] = table[i];
+			p[4 * i + 3] = table[i];
+		}
+		p += offset;
+	}
+}
+
+void Draw_PatchQuakePalette (void)
+{
+	for (int j = 0; j != 8; ++j) {
+		for (int i = 0; i != 16; ++i) {
+			int const idx = 16 * j + i;
+			palette[idx] = table[idx];
+		}
+	}
+
+	// we need to map ligth-to-dark to dark-to-light here, see Quake wiki
+	for (int j = 8; j != 14; ++j) {
+		for (int i = 0; i != 16; ++i) {
+			int const idx = 16 * j + i;
+			int const jdx = 16 * (j + 1) - (i + 1);
+			palette[idx] = table[jdx];
+		}
+	}
+
+	for (int j = 14; j != 16; ++j) {
+		for (int i = 0; i != 16; ++i) {
+			int const idx = 16 * j + i;
+			palette[idx] = table[idx];
+		}
+	}
+
+	// and we need to swap Red and Blue to get the right palette
+	Byte const *src = (Byte const*) palette;
+	Byte *dst = (Byte*) table;
+	for (int i = 0; i != 1024; i += 4) {
+		dst[i + 0] = src[i + 2];
+		dst[i + 1] = src[i + 1];
+		dst[i + 2] = src[i + 0];
+	}
+}
+
 void Graphics_InitTextures (void)
 {
 	r_notexture_mip = (struct Image*) r_notexture_buffer;
@@ -401,6 +457,7 @@ static void Graphics_ImpEndFrame (void)
 	memset(Video.buffer, 0, Video.bufferSize);
 	Draw_CheckeredPattern();
 	Draw_Fill(0, 0, Video.width, 0.75 * Video.height, RGB32(0, 0, 255));
+	Draw_ShowQuakePalette();
 
 	XPutImage(display,
 		  window,
@@ -438,7 +495,6 @@ static void ResetFrameBuffer (void)
 		exit(EXIT_FAILURE);
 	}
 	memset(data, 0, bytes);
-	memcpy(data, table, sizeof(table));
 	fprintf(stdout, "ResetFrameBuffer: pwidth: %d\n", pwidth);
 	fprintf(stdout, "ResetFrameBuffer: framebuffer-size: 0x%x\n", bytes);
 
@@ -706,6 +762,7 @@ void Graphics_Init (void)
 
 	Graphics_Register();
 	Draw_GetPalette();
+	Draw_PatchQuakePalette();
 	Graphics_ImpInit();
 
 	Graphics_BeginFrame();
