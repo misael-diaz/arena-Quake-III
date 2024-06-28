@@ -119,8 +119,8 @@ static size_t FS_FileSize (FILE *file)
 	ssize_t b = ftell(file);
 	if (b == -1) {
 		fclose(file);
-		fprintf(stderr, "FS_FileSize: %s\n", strerror(errno));
 		Util_Clear();
+		fprintf(stderr, "FS_FileSize: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -128,8 +128,8 @@ static size_t FS_FileSize (FILE *file)
 	ssize_t e = ftell(file);
 	if (e == -1) {
 		fclose(file);
-		fprintf(stderr, "FS_FileSize: %s\n", strerror(errno));
 		Util_Clear();
+		fprintf(stderr, "FS_FileSize: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -144,8 +144,8 @@ static void *AllocBufferFile (FILE *file, size_t const size)
 	void *buffer = Util_Malloc(bytes);
 	if (!buffer) {
 		fclose(file);
-		fprintf(stderr, "AllocBufferFile: %s\n", strerror(errno));
 		Util_Clear();
+		fprintf(stderr, "AllocBufferFile: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	memset(buffer, 0, bytes);
@@ -157,8 +157,8 @@ static void LoadBufferFile (FILE *file, void *buffer, size_t const size)
 	size_t const bytes_read = fread(buffer, 1, size, file);
 	if (bytes_read != size) {
 		fclose(file);
-		fprintf(stderr, "LoadBufferFile: failed to read file\n");
 		Util_Clear();
+		fprintf(stderr, "LoadBufferFile: failed to read file\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -168,6 +168,7 @@ static void LoadPalette (void)
 	char const *lmp = "assets/palette.lmp";
 	FILE *flmp = fopen(lmp, "r");
 	if (!flmp) {
+		Util_Clear();
 		fprintf(stderr, "LoadPalette: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -175,6 +176,7 @@ static void LoadPalette (void)
 	size_t const len = FS_FileSize(flmp);
 	if (len != 256 * 3) {
 		fclose(flmp);
+		Util_Clear();
 		fprintf(stderr, "LoadPalette: wrong file size\n");
 		exit(EXIT_FAILURE);
 	}
@@ -281,6 +283,7 @@ void Draw_Fill (int x, int y, int width, int height, int color)
 static void shiftmasks_init (void)
 {
 	if (!visual) {
+		Util_Clear();
 		fprintf(stderr, "shiftmasks_init: NullVisualError\n");
 		exit(EXIT_FAILURE);
 	}
@@ -436,6 +439,7 @@ static void Graphics_ImpInit (void)
 			char errmsg[] = "Graphics_ImpInit: failed to open local display\n";
 			fprintf(stderr, "%s", errmsg);
 		}
+		Util_Clear();
 		exit(EXIT_FAILURE);
 	}
 	char const *envDisplay = getenv("DISPLAY");
@@ -487,6 +491,7 @@ static void ResetFrameBuffer (void)
 		XFree(visualInfo);
 		XFreeColormap(display, windowAttributes.colormap);
 		XCloseDisplay(display);
+		Util_Clear();
 		fprintf(stderr, "ResetFrameBuffer: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -722,6 +727,7 @@ void Graphics_BeginFrame (void)
 			fprintf(stderr, "Graphics_BeginFrame: SetModeError\n");
 			Graphics_Shutdown();
 			XCloseDisplay(display);
+			Util_Clear();
 			exit(EXIT_FAILURE);
 		}
 		Graphics_InitGraphics(Video.width, Video.height);
