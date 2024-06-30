@@ -2,7 +2,7 @@
 #
 # Quake-III						June 07, 2024
 #
-# source: src/main/Makefile
+# source: src/system/Makefile
 # author: @misael-diaz
 #
 # Synopsis:
