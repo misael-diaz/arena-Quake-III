@@ -1,7 +1,7 @@
 #
 # Quake-III						June 07, 2024
 #
-# source: src/graphics/make-inc
+# source: src/vector/make-inc
 # author: @misael-diaz
 #
 # Synopsis:
@@ -14,15 +14,8 @@
 #
 
 INC = -I../../include
-UTIL_H = ../../include/util.h
-GRAPHICS_H = ../../include/graphics.h
-GRAPHICS_MODEL_H = ../../include/graphics/model.h
-HEADERS = $(UTIL_H) $(GRAPHICS_H)
-
-BSP_C = bsp.c
-GRAPHICS_C = graphics.c
-MAIN_C = main.c
-
-BSP_O = bsp.o
-GRAPHICS_O = graphics.o
-MAIN_O = main.o
+TYPE_VECTOR_H = ../../include/types/Vector.h
+VECTOR_H = ../../include/vector.h
+HEADERS = $(VECTOR_H) $(TYPE_VECTOR_H)
+VECTOR_C = vector.c
+VECTOR_O = vector.o

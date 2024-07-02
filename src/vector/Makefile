@@ -2,7 +2,7 @@
 #
 # Quake-III						June 07, 2024
 #
-# source: src/graphics/Makefile
+# source: src/vector/Makefile
 # author: @misael-diaz
 #
 # Synopsis:
@@ -16,16 +16,10 @@
 
 include make-inc
 
-all: $(GRAPHICS_O) $(MAIN_O)
+all: $(VECTOR_O)
 
-$(BSP_O): $(HEADERS) $(BSP_C)
-	$(CC) $(INC) $(CCOPT) -c $(BSP_C) -o $(BSP_O)
-
-$(GRAPHICS_O): $(HEADERS) $(GRAPHICS_C)
-	$(CC) $(INC) $(CCOPT) -c $(GRAPHICS_C) -o $(GRAPHICS_O)
-
-$(MAIN_O): $(HEADERS) $(MAIN_C)
-	$(CC) $(INC) $(CCOPT) -c $(MAIN_C) -o $(MAIN_O)
+$(VECTOR_O): $(HEADERS) $(VECTOR_C)
+	$(CC) $(INC) $(CCOPT) -c $(VECTOR_C) -o $(VECTOR_O)
 
 clean:
 	/bin/rm -f *.o

@@ -18,9 +18,11 @@ all: Quake
 
 Util:
 	@$(MAKE) -C util
+Vector:
+	@$(MAKE) -C vector
 Video:
 	@$(MAKE) -C video
-Graphics: Video
+Graphics: Video Vector
 	@$(MAKE) -C graphics
 Common: Util Graphics
 	@$(MAKE) -C common
@@ -30,6 +32,7 @@ Quake: Common System
 	@$(MAKE) -C main
 clean:
 	@$(MAKE) -C util clean
+	@$(MAKE) -C vector clean
 	@$(MAKE) -C video clean
 	@$(MAKE) -C graphics clean
 	@$(MAKE) -C system clean
