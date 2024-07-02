@@ -1,12 +1,8 @@
-#ifndef GUARD_QUAKE_UTIL_H
-#define GUARD_QUAKE_UTIL_H
+#ifndef GUARD_QUAKE_COMMON_MAIN_H
+#define GUARD_QUAKE_COMMON_MAIN_H
 
-#include <stddef.h>
-
-void Util_Clear(void);
-void *Util_Free(void *p);
-void *Util_Malloc(size_t const sz);
-char *Util_CopyString(const char *string);
+void Q_Init(void);
+void Q_Shutdown(void);
 
 #endif
 
@@ -15,7 +11,7 @@ char *Util_CopyString(const char *string);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/util.h
+source: include/common/main.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

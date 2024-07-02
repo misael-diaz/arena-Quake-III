@@ -22,9 +22,11 @@ Video:
 	@$(MAKE) -C video
 Graphics: Video
 	@$(MAKE) -C graphics
+Common: Util Graphics
+	@$(MAKE) -C common
 System: Util
 	@$(MAKE) -C system
-Quake: Graphics System
+Quake: Common System
 	@$(MAKE) -C main
 clean:
 	@$(MAKE) -C util clean

@@ -5,10 +5,14 @@
 #include "util.h"
 #include "graphics.h"
 #include "system.h"
+#include "structs/CtrlVar.h"
+#include "common/CtrlVar.h"
+#include "common/main.h"
 
 static void asserts (void)
 {
 	static_assert(__BYTE_ORDER == __LITTLE_ENDIAN);
+	static_assert(sizeof(struct CVar) == 64);
 	static_assert(sizeof(int) == 4);
 	static_assert(sizeof(long) == 8);
 }
@@ -19,13 +23,12 @@ int main ()
 	printf("quake\n");
 	Graphics_Init();
 	Graphics_EndFrame();
-	for (int i = 0; i != 256; ++i) {
+	for (int i = 0; i != 4; ++i) {
 		Sys_DelayMillis();
 		Graphics_BeginFrame();
 		Graphics_EndFrame();
 	}
-	Graphics_Free();
-	Util_Clear();
+	Q_Shutdown();
 	return 0;
 }
 

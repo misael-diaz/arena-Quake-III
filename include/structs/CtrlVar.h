@@ -1,12 +1,21 @@
-#ifndef GUARD_QUAKE_UTIL_H
-#define GUARD_QUAKE_UTIL_H
+#ifndef GUARD_QUAKE_STRUCTS_CONTROL_VARIABLES_H
+#define GUARD_QUAKE_STRUCTS_CONTROL_VARIABLES_H
 
-#include <stddef.h>
+#include <stdbool.h>
 
-void Util_Clear(void);
-void *Util_Free(void *p);
-void *Util_Malloc(size_t const sz);
-char *Util_CopyString(const char *string);
+struct CVar {
+	struct CVar *next;
+	char *key;
+	char *value;
+	float data;
+	int flags;
+	bool modified;
+	char pad[3];
+	int: 32;
+	long: 64;
+	long: 64;
+	long: 64;
+}; // cvar_t
 
 #endif
 
@@ -15,7 +24,7 @@ char *Util_CopyString(const char *string);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/util.h
+source: include/structs/CtrlVar.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

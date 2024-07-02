@@ -14,11 +14,17 @@
 #
 
 INC = -I../../include
-GRAPHICS_H = ../../include/util.h
+UTIL_H = ../../include/util.h
 GRAPHICS_H = ../../include/graphics.h
+STR_CTRLVAR_H = ../../include/structs/CtrlVar.h
+COM_CTRLVAR_H = ../../include/common/CtrlVar.h
+COM_MAIN_H = ../../include/common/main.h
 SYSTEM_H = ../../include/system.h
 HEADERS = $(UTIL_H)\
 	  $(GRAPHICS_H)\
+	  $(STR_CTRLVAR_H)\
+	  $(COM_CTRLVAR_H)\
+	  $(COM_MAIN_H)\
 	  $(SYSTEM_H)
 
 UTIL_C = util/util.c
@@ -31,10 +37,14 @@ UTIL_O = ../util/util.o
 VIDEO_O = ../video/video.o
 GRAPHICS_O = ../graphics/graphics.o
 SYSTEM_O = ../system/system.o
+COM_CTRLVAR_O = ../common/CtrlVar.o
+COM_MAIN_O = ../common/main.o
 MAIN_O = main.o
 OBJECTS_O = $(UTIL_O)\
 	    $(VIDEO_O)\
 	    $(GRAPHICS_O)\
 	    $(SYSTEM_O)\
+	    $(COM_CTRLVAR_O)\
+	    $(COM_MAIN_O)\
 	    $(MAIN_O)
 BIN = quake-III.bin

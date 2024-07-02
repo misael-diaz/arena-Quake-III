@@ -1,0 +1,35 @@
+#
+# Quake-III						June 07, 2024
+#
+# source: src/common/make-inc
+# author: @misael-diaz
+#
+# Synopsis:
+# Defines the include file for building the program with GNU make.
+#
+# Copyright (c) 2024 Misael Díaz-Maldonado
+# This file is released under the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+
+INC = -I../../include
+UTIL_H = ../../include/util.h
+GRAPHICS_H = ../../include/graphics.h
+STRUCTS_CONTROL_VARIABLES_H = ../../include/structs/CtrlVar.h
+COMMON_CONTROL_VARIABLES_H = ../../include/common/CtrlVar.h
+COMMON_MAIN_H = ../../include/common/main.h
+HEADERS = $(UTIL_H)\
+	  $(GRAPHICS_H)\
+	  $(STRUCTS_CONTROL_VARIABLES_H)\
+	  $(COMMON_CONTROL_VARIABLES_H)\
+	  $(COMMON_MAIN_H)
+
+MAIN_C = main.c
+CONTROL_VARIABLES_C = CtrlVar.c
+
+CONTROL_VARIABLES_O = CtrlVar.o
+MAIN_O = main.o
+
+OBJS_O = $(CONTROL_VARIABLES_O)\
+	 $(MAIN_O)
