@@ -7,278 +7,26 @@
 #include <string.h>
 #include <errno.h>
 
-#include "types/Byte.h"
 #include "video.h"
 #include "graphics.h"
 #include "util.h"
 
-#define XCENTERING 0.5f
-#define YCENTERING XCENTERING
-#define MAX_QPATH 64
-#define MAX_MAP_LEAFS 0x10000
-#define MODEL_NOVIS_SIZE (MAX_MAP_LEAFS / 8)
-
-enum GraphicsErrorType {
-        GERR_OK,
-        GERR_INVALID_FULLSCREEN,
-        GERR_INVALID_MODE,
-        GERR_UNKNOWN
-};
-
-enum ImageType {
-	IMG_SKIN,
-	IMG_SPRIMGE,
-	IMG_WALL,
-	IMG_PIC,
-	IMG_SKY
-};
-
-struct Vector3D {
-	float x;
-	float y;
-	float z;
-	int32_t: 32;
-};
-
-struct ClipPlane {
-	struct ClipPlane *next;
-	struct Vector3D normal;
-	float dist;
-	Byte leftedge;
-	Byte rightedge;
-	Byte reserved[2];
-};
-
-struct GraphState {
-	int prev_mode;
-	Byte gammatable[256];
-	Byte currentpalette[1024];
-	bool fullscreen;
-	char padding[251];
-};
-
-struct Image {
-	char name[MAX_QPATH];
-	enum ImageType type;
-	int width;
-	int height;
-	int registration_sequence;
-	Byte *pixels[4];
-	bool transparent;
-	int64_t: 64;
-};
-
-struct OldRefDef {
-	float xOrigin;
-	float yOrigin;
-}; // NOTE: MINIMAL OLDREFDEF, MISSING FIELDS
-
-struct Cfg {
-        struct Cfg *next;
-        char *latched_string;
-        char *string;
-        char *name;
-        float value;
-        int flags;
-        bool modified;
-	char padding[23];
-};
-
 extern struct Video Video;
 
-static struct OldRefDef RefDef;
-static struct GraphState GraphState;
-static struct Cfg vid_gamma;
-static struct Cfg vid_fullscreen;
-static struct Cfg graphics_mode;
+Display *display = NULL;
+
 static GC gc;
 static Window window;
 static XSetWindowAttributes windowAttributes;
-static Display *display = NULL;
 static Visual *visual = NULL;
 static XVisualInfo *visualInfo = NULL;
 static XImage *framebuffer = NULL;
-static struct Image *r_notexture_mip = NULL;
-static struct ClipPlane view_clipplanes[4];
-static uint32_t table[256];
-static uint32_t palette[256];
 static uint32_t curpalette[256];
-static Byte r_notexture_buffer[1024];
-static Byte mod_novis[MODEL_NOVIS_SIZE];
 static uint64_t bitshift_red = 0;
 static uint64_t bitshift_green = 0;
 static uint64_t bitshift_blue = 0;
 static bool bitshifts_initialized = false;
-static int model_registration_sequence = 0;
-static float r_aliasuvscale = 1.0f;
 static bool X11Active = false;
-
-static size_t FS_FileSize (FILE *file)
-{
-	fseek(file, 0L, SEEK_SET);
-	ssize_t b = ftell(file);
-	if (b == -1) {
-		fclose(file);
-		Util_Clear();
-		fprintf(stderr, "FS_FileSize: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	fseek(file, 0L, SEEK_END);
-	ssize_t e = ftell(file);
-	if (e == -1) {
-		fclose(file);
-		Util_Clear();
-		fprintf(stderr, "FS_FileSize: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	fseek(file, 0L, SEEK_SET);
-	size_t size = (e - b);
-	return size;
-}
-
-static void *AllocBufferFile (FILE *file, size_t const size)
-{
-	size_t const bytes = (size + 1);
-	void *buffer = Util_Malloc(bytes);
-	if (!buffer) {
-		fclose(file);
-		Util_Clear();
-		fprintf(stderr, "AllocBufferFile: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-	memset(buffer, 0, bytes);
-	return buffer;
-}
-
-static void LoadBufferFile (FILE *file, void *buffer, size_t const size)
-{
-	size_t const bytes_read = fread(buffer, 1, size, file);
-	if (bytes_read != size) {
-		fclose(file);
-		Util_Clear();
-		fprintf(stderr, "LoadBufferFile: failed to read file\n");
-		exit(EXIT_FAILURE);
-	}
-}
-
-static void LoadPalette (void)
-{
-	char const *lmp = "assets/palette.lmp";
-	FILE *flmp = fopen(lmp, "r");
-	if (!flmp) {
-		Util_Clear();
-		fprintf(stderr, "LoadPalette: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	size_t const len = FS_FileSize(flmp);
-	if (len != 256 * 3) {
-		fclose(flmp);
-		Util_Clear();
-		fprintf(stderr, "LoadPalette: wrong file size\n");
-		exit(EXIT_FAILURE);
-	}
-	void *vbuffer = AllocBufferFile(flmp, len);
-	LoadBufferFile(flmp, vbuffer, len);
-
-	Byte const *data = (Byte const*) vbuffer;
-	Byte *palette = (Byte*) table;
-	memset(palette, 0, 1024);
-	for (size_t n = 0, i = 0; i != len; ++n, i += 3) {
-		palette[4 * n + 0] = data[i + 0];
-		palette[4 * n + 1] = data[i + 1];
-		palette[4 * n + 2] = data[i + 2];
-		palette[4 * n + 3] = 0xff;
-	}
-
-	for (size_t i = 0; i != len; i +=3) {
-		fprintf(stdout, "%03d %03d %03d\n", data[i], data[i + 1], data[i + 2]);
-	}
-
-	vbuffer = Util_Free(vbuffer);
-	fclose(flmp);
-}
-
-static void Draw_InitLocal (void)
-{
-	return;
-}
-
-static void Draw_GetPalette (void)
-{
-	LoadPalette();
-}
-
-void Draw_BuildGammaTable (void)
-{
-	memset(GraphState.gammatable, 0, sizeof(GraphState.gammatable));
-	for (int i = 0; i != 256; ++i) {
-		GraphState.gammatable[i] = i;
-	}
-}
-
-void Draw_Fill (int x, int y, int width, int height, int color)
-{
-	if (!Video.buffer) {
-		fprintf(stderr, "Draw_Fill: NullVidBufferError\n");
-		return;
-	}
-
-	if (!Video.rowBytes) {
-		fprintf(stderr, "Draw_Fill: VidSetError\n");
-		return;
-	}
-
-	if ((width < 0) || (height < 0)) {
-		fprintf(stderr, "Draw_Fill: InvalidDimsError\n");
-		return;
-	}
-
-	if (x < 0) {
-		fprintf(stderr, "Draw_Fill: Fixing X Position\n");
-		width += (-x);
-		x = 0;
-	}
-
-	if (y < 0) {
-		fprintf(stderr, "Draw_Fill: Fixing Y Position\n");
-		height += (-y);
-		y = 0;
-	}
-
-	if ((x + width) > Video.width) {
-		if (x == 0) {
-			fprintf(stderr, "Draw_Fill: BigDimsError\n");
-			return;
-		}
-		fprintf(stderr, "Draw_Fill: Fixing Width\n");
-		width = (Video.width - x);
-	}
-
-	if ((y + height) > Video.height) {
-		if (y == 0) {
-			fprintf(stderr, "Draw_Fill: BigDimsError\n");
-			return;
-		}
-		fprintf(stderr, "Draw_Fill: Fixing Height\n");
-		height = (Video.height - y);
-	}
-
-	// FIXME: could overflow if x, y exceed their respective thresholds
-	int const c = color;
-	int offset = (Video.rowBytes / 4);
-	int *buffer = (int*) Video.buffer;
-	int *p = buffer + offset * y + x;
-	int jy = 0, ix = 0;
-	for (jy = 0; jy != height; ++jy) {
-		for (ix = 0; ix != width; ++ix) {
-			p[ix] = c;
-		}
-		p += offset;
-	}
-}
 
 static void shiftmasks_init (void)
 {
@@ -306,7 +54,7 @@ static void shiftmasks_init (void)
 	bitshifts_initialized = true;
 }
 
-static unsigned int RGB32 (unsigned long r, unsigned long g, unsigned long b)
+unsigned int Graphics_RGB (unsigned long r, unsigned long g, unsigned long b)
 {
 	if (!bitshifts_initialized) {
 		shiftmasks_init();
@@ -319,115 +67,7 @@ static unsigned int RGB32 (unsigned long r, unsigned long g, unsigned long b)
 	return (p & 0x00000000ffffffff);
 }
 
-void Draw_CheckeredPattern (void)
-{
-	int const width = 64;
-	int const height = 64;
-	if (width > Video.width || height > Video.height) {
-		fprintf(stderr, "Draw_CheckeredPattern: would exceed video dims\n");
-		return;
-	}
-	unsigned int size = (Video.bufferSize / 4);
-	unsigned int const rowSize = (Video.rowBytes / 4);
-	unsigned int *buffer = (unsigned int*) Video.buffer;
-	unsigned int *p = buffer;
-	for (unsigned int k = 0; k != size; ++k) {
-		unsigned int i = ((k % rowSize) / width);
-		unsigned int j = ((k / rowSize) / height);
-		if ((i % 2) ^ (j % 2)) {
-			p[k] = RGB32(128, 128, 128);
-		} else {
-			p[k] = RGB32(0, 0, 0);
-		}
-	}
-}
-
-void Draw_ShowQuakePalette (void)
-{
-	unsigned int const height = (Video.height / 2);
-	unsigned int const width = 256;
-	unsigned int const rowSize = (Video.rowBytes / 4);
-	unsigned int const offset = rowSize;
-	unsigned int *buffer = (unsigned int*) Video.buffer;
-	unsigned int *p = buffer;
-	for (unsigned int j = 0; j != height; ++j) {
-		for (unsigned int i = 0; i != width; ++i) {
-			p[4 * i + 0] = table[i];
-			p[4 * i + 1] = table[i];
-			p[4 * i + 2] = table[i];
-			p[4 * i + 3] = table[i];
-		}
-		p += offset;
-	}
-}
-
-void Draw_PatchQuakePalette (void)
-{
-	for (int j = 0; j != 8; ++j) {
-		for (int i = 0; i != 16; ++i) {
-			int const idx = 16 * j + i;
-			palette[idx] = table[idx];
-		}
-	}
-
-	// we need to map ligth-to-dark to dark-to-light here, see Quake wiki
-	for (int j = 8; j != 14; ++j) {
-		for (int i = 0; i != 16; ++i) {
-			int const idx = 16 * j + i;
-			int const jdx = 16 * (j + 1) - (i + 1);
-			palette[idx] = table[jdx];
-		}
-	}
-
-	for (int j = 14; j != 16; ++j) {
-		for (int i = 0; i != 16; ++i) {
-			int const idx = 16 * j + i;
-			palette[idx] = table[idx];
-		}
-	}
-
-	Byte const *src = (Byte const*) palette;
-	for (int i = 0; i != 1024; i += 4) {
-		table[(i / 4)] = RGB32(src[i + 0], src[i + 1], src[i + 2]);
-	}
-}
-
-void Graphics_InitTextures (void)
-{
-	r_notexture_mip = (struct Image*) r_notexture_buffer;
-	r_notexture_mip->width = r_notexture_mip->height = 16;
-	r_notexture_mip->pixels[0] = &r_notexture_buffer[sizeof(struct Image)];
-	r_notexture_mip->pixels[1] = r_notexture_mip->pixels[0] + 16 * 16;
-	r_notexture_mip->pixels[2] = r_notexture_mip->pixels[1] + 8 * 8;
-	r_notexture_mip->pixels[3] = r_notexture_mip->pixels[2] + 4 * 4;
-	for (int n = 0; n < 4; ++n) {
-		Byte *dst = r_notexture_mip->pixels[n];
-		int const height = (16 >> n);
-		for (int y = 0; y < height; ++y) {
-			int const width = (16 >> n);
-			for (int x = 0; x < width; ++x) {
-				if ((y < (8 >> n)) ^ (x < (8 >> n))) {
-					*dst = 0;
-				} else {
-					*dst = 255;
-				}
-				++dst;
-			}
-		}
-	}
-}
-
-void Graphics_InitImages (void)
-{
-	model_registration_sequence = 1;
-}
-
-void Mod_Init (void)
-{
-	memset(mod_novis, 255, MODEL_NOVIS_SIZE);
-}
-
-static void Graphics_ImpInit (void)
+void Graphics_ImpInit (void)
 {
 	display = XOpenDisplay(0);
 	if (!display) {
@@ -436,7 +76,8 @@ static void Graphics_ImpInit (void)
 			char errmsg[] = "Graphics_ImpInit: failed to open display [%s]\n";
 			fprintf(stderr, errmsg, envDisplay);
 		} else {
-			char errmsg[] = "Graphics_ImpInit: failed to open local display\n";
+			char errmsg[] = "Graphics_ImpInit: "
+					"failed to open local display\n";
 			fprintf(stderr, "%s", errmsg);
 		}
 		Util_Clear();
@@ -447,17 +88,17 @@ static void Graphics_ImpInit (void)
 	fprintf(stdout, msg, envDisplay);
 }
 
-static void Graphics_ImpEndFrame (void)
+void Graphics_ImpEndFrame (void)
 {
 	if (!framebuffer) {
 		fprintf(stdout, "Graphics_ImpEndFrame: unallocated framebuffer\n");
 		return;
 	}
 
-	memset(Video.buffer, 0, Video.bufferSize);
-	Draw_CheckeredPattern();
-	Draw_Fill(0, 0, Video.width, 0.75 * Video.height, RGB32(0, 0, 255));
-	Draw_ShowQuakePalette();
+	// memset(Video.buffer, 0, Video.bufferSize);
+	// Draw_CheckeredPattern();
+	// Draw_Fill(0, 0, Video.width, 0.75 * Video.height, Graphics_RGB(0, 0, 255));
+	// Draw_ShowQuakePalette();
 
 	XPutImage(display,
 		  window,
@@ -471,12 +112,7 @@ static void Graphics_ImpEndFrame (void)
 		  Video.height);
 }
 
-void Graphics_EndFrame (void)
-{
-	Graphics_ImpEndFrame();
-}
-
-static void ResetFrameBuffer (void)
+void ResetFrameBuffer (void)
 {
 	if (framebuffer) {
 		XDestroyImage(framebuffer);
@@ -519,7 +155,7 @@ static void ResetFrameBuffer (void)
 	Video.bufferSize = bytes;
 }
 
-static void Graphics_ImpShutdown (void)
+void Graphics_ImpShutdown (void)
 {
 	if (!X11Active) {
 		return;
@@ -543,22 +179,7 @@ static void Graphics_ImpShutdown (void)
 	X11Active = false;
 }
 
-void Graphics_Shutdown (void)
-{
-	Graphics_ImpShutdown();
-}
-
-
-void Graphics_Free (void)
-{
-	Graphics_ImpShutdown();
-	if (display) {
-		XCloseDisplay(display);
-		display = NULL;
-	}
-}
-
-static bool Graphics_ImpInitGraphics (bool fullscreen)
+bool Graphics_ImpInitGraphics (bool fullscreen)
 {
 	if (fullscreen) {
 		fprintf(stdout, "Graphics_ImpInitGraphics: fullscreen\n");
@@ -647,7 +268,7 @@ static bool Graphics_ImpInitGraphics (bool fullscreen)
 	return true;
 }
 
-static void Graphics_ImpSetPalette (Byte const *palette)
+void Graphics_ImpSetPalette (Byte const *palette)
 {
 	if (!X11Active) {
 		return;
@@ -657,27 +278,14 @@ static void Graphics_ImpSetPalette (Byte const *palette)
 		uint64_t r = palette[4 * i + 0];
 		uint64_t g = palette[4 * i + 1];
 		uint64_t b = palette[4 * i + 2];
-		curpalette[i] = RGB32(r, g, b);
+		curpalette[i] = Graphics_RGB(r, g, b);
 	}
 }
 
-void Graphics_GammaCorrectAndSetPalette (Byte const *palette)
-{
-	Byte const *gammatable = (Byte const*) GraphState.gammatable;
-	Byte *currentpalette = GraphState.currentpalette;
-	for (int i = 0; i != 256; ++i) {
-		currentpalette[4 * i + 0] = gammatable[palette[4 * i + 0]];
-		currentpalette[4 * i + 1] = gammatable[palette[4 * i + 1]];
-		currentpalette[4 * i + 2] = gammatable[palette[4 * i + 2]];
-	}
-
-	Graphics_ImpSetPalette(currentpalette);
-}
-
-static enum GraphicsErrorType Graphics_ImpSetMode (int *width,
-						   int *height,
-						   int mode,
-						   bool fullscreen)
+enum GraphicsErrorType Graphics_ImpSetMode (int *width,
+					    int *height,
+					    int mode,
+					    bool fullscreen)
 {
 	if (!VID_GetModeInfo(width, height, mode)) {
 		return GERR_INVALID_MODE;
@@ -695,79 +303,6 @@ static enum GraphicsErrorType Graphics_ImpSetMode (int *width,
 	Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
 
 	return GERR_OK;
-}
-
-void Graphics_InitGraphics (int width, int height)
-{
-	if (width == 0 || height == 0) {
-		fprintf(stderr, "Graphics_InitGraphics: InitError");
-		return;
-	}
-
-	Video.width = width;
-	Video.height = height;
-
-	Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
-}
-
-void Graphics_BeginFrame (void)
-{
-	if (vid_gamma.modified) {
-		Draw_BuildGammaTable();
-		Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
-		vid_gamma.modified = false;
-	}
-
-	if (graphics_mode.modified) {
-		enum GraphicsErrorType err = Graphics_ImpSetMode(&Video.width,
-								 &Video.height,
-								 graphics_mode.value,
-								 vid_fullscreen.value);
-		if (err) {
-			fprintf(stderr, "Graphics_BeginFrame: SetModeError\n");
-			Graphics_Shutdown();
-			XCloseDisplay(display);
-			Util_Clear();
-			exit(EXIT_FAILURE);
-		}
-		Graphics_InitGraphics(Video.width, Video.height);
-		GraphState.prev_mode = graphics_mode.value;
-		vid_fullscreen.modified = false;
-		graphics_mode.modified = false;
-	}
-}
-
-void Graphics_Register (void)
-{
-	vid_fullscreen.value = 0;
-	graphics_mode.value = 8;
-	graphics_mode.modified = true;
-	vid_gamma.modified = true;
-}
-
-void Graphics_Init (void)
-{
-	Graphics_InitImages();
-	Mod_Init();
-	Draw_InitLocal();
-	Graphics_InitTextures();
-
-	view_clipplanes[0].leftedge = true;	view_clipplanes[0].rightedge = false;
-	view_clipplanes[1].leftedge = false;	view_clipplanes[1].rightedge = true;
-	view_clipplanes[2].leftedge = false;	view_clipplanes[2].rightedge = false;
-	view_clipplanes[3].leftedge = false;	view_clipplanes[3].rightedge = false;
-
-	RefDef.xOrigin = XCENTERING;
-	RefDef.yOrigin = YCENTERING;
-
-	r_aliasuvscale = 1.0f;
-
-	Graphics_Register();
-	Draw_GetPalette();
-	Graphics_ImpInit();
-
-	Graphics_BeginFrame();
-	Draw_PatchQuakePalette();
 }
 
 /*

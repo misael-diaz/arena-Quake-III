@@ -1,5 +1,5 @@
-#ifndef GUARD_QUAKE_TYPES_VECTOR_H
-#define GUARD_QUAKE_TYPES_VECTOR_H
+#ifndef GUARD_QUAKE_COMMON_STRUCTS_VECTOR_H
+#define GUARD_QUAKE_COMMON_STRUCTS_VECTOR_H
 
 struct Vector3D {
 	float x;
@@ -15,7 +15,7 @@ struct Vector3D {
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/types/Vector.h
+source: include/common/structs/Vector.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

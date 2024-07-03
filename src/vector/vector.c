@@ -1,5 +1,4 @@
-#include "types/Vector.h"
-#include "vector.h"
+#include "common.h"
 
 void Vector3DCopy (const struct Vector3D *u, struct Vector3D *v)
 {

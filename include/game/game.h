@@ -1,10 +1,8 @@
 #ifndef GUARD_QUAKE_GAME_GAME_H
 #define GUARD_QUAKE_GAME_GAME_H
 
-#define MAX_QPATH 64
-#define MAX_MD2SKINS 32
-#define MAXLIGHTMAPS 4
-#define MIPLEVELS 4
+#include "defs.h"
+#include "local.h"
 
 #endif
 

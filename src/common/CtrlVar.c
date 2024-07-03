@@ -3,9 +3,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "structs/CtrlVar.h"
-#include "common/CtrlVar.h"
-#include "common/main.h"
+#include "common.h"
 #include "util.h"
 
 static struct CVar *cvars = NULL;

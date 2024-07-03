@@ -14,8 +14,7 @@
 #
 
 INC = -I../../include
-TYPE_VECTOR_H = ../../include/types/Vector.h
-VECTOR_H = ../../include/vector.h
-HEADERS = $(VECTOR_H) $(TYPE_VECTOR_H)
+COMMON_H = ../../include/common.h
+HEADERS = $(COMMON_H)
 VECTOR_C = vector.c
 VECTOR_O = vector.o

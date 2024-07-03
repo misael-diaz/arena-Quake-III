@@ -16,10 +16,19 @@
 
 include make-inc
 
-all: $(GRAPHICS_O) $(MAIN_O)
+all: $(OBJS_O)
 
 $(BSP_O): $(HEADERS) $(BSP_C)
 	$(CC) $(INC) $(CCOPT) -c $(BSP_C) -o $(BSP_O)
+
+$(DRAW_O): $(HEADERS) $(DRAW_C)
+	$(CC) $(INC) $(CCOPT) -c $(DRAW_C) -o $(DRAW_O)
+
+$(MODEL_O): $(HEADERS) $(MODEL_C)
+	$(CC) $(INC) $(CCOPT) -c $(MODEL_C) -o $(MODEL_O)
+
+$(SURFACE_O): $(HEADERS) $(SURFACE_C)
+	$(CC) $(INC) $(CCOPT) -c $(SURFACE_C) -o $(SURFACE_O)
 
 $(GRAPHICS_O): $(HEADERS) $(GRAPHICS_C)
 	$(CC) $(INC) $(CCOPT) -c $(GRAPHICS_C) -o $(GRAPHICS_O)

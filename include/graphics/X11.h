@@ -1,24 +1,18 @@
-#ifndef GUARD_QUAKE_VIDEO_H
-#define GUARD_QUAKE_VIDEO_H
+#ifndef GUARD_QUAKE_GRAPHICS_X11_IMPLEMENTATION_H
+#define GUARD_QUAKE_GRAPHICS_X11_IMPLEMENTATION_H
 
 #include <stdbool.h>
-#include "common/types/Byte.h"
+#include "../common/types/Byte.h"
+#include "local/enums/local.h"
 
-struct Video {
-	Byte *buffer;
-	Byte *colormap;
-	Byte *alphamap;
-	int rowBytes;
-	int width;
-	int height;
-	int bufferSize;
-	long: 64;
-	long: 64;
-	long: 64;
-}; // viddef_t
-
-void VID_NewVideo(int width, int height);
-bool VID_GetModeInfo(int *width, int *height, int mode);
+void Graphics_ImpInit(void);
+void Graphics_ImpBeginFrame(void);
+void Graphics_ImpEndFrame(void);
+void Graphics_ImpSetPalette(Byte const *palette);
+unsigned int Graphics_RGB(unsigned long r, unsigned long g, unsigned long b);
+enum GraphicsErrorType Graphics_ImpSetMode(int *W, int *H, int mode, bool fullscreen);
+void Graphics_ImpShutdown(void);
+void Graphics_ImpFree(void);
 
 #endif
 
@@ -27,7 +21,7 @@ bool VID_GetModeInfo(int *width, int *height, int mode);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/client/video.h
+source: include/graphics/X11.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

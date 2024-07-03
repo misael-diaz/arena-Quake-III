@@ -1,24 +1,12 @@
-#ifndef GUARD_QUAKE_VIDEO_H
-#define GUARD_QUAKE_VIDEO_H
+#ifndef GUARD_QUAKE_GRAPHICS_MODEL_ENUMS_MODEL_H
+#define GUARD_QUAKE_GRAPHICS_MODEL_ENUMS_MODEL_H
 
-#include <stdbool.h>
-#include "common/types/Byte.h"
-
-struct Video {
-	Byte *buffer;
-	Byte *colormap;
-	Byte *alphamap;
-	int rowBytes;
-	int width;
-	int height;
-	int bufferSize;
-	long: 64;
-	long: 64;
-	long: 64;
-}; // viddef_t
-
-void VID_NewVideo(int width, int height);
-bool VID_GetModeInfo(int *width, int *height, int mode);
+enum ModelType {
+	MOD_BAD,
+	MOD_BRUSH,
+	MOD_SPRITE,
+	MOD_ALIAS
+}; // modtype_t
 
 #endif
 
@@ -27,7 +15,7 @@ bool VID_GetModeInfo(int *width, int *height, int mode);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/client/video.h
+source: include/graphics/model/enums/model.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

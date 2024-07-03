@@ -1,24 +1,20 @@
-#ifndef GUARD_QUAKE_VIDEO_H
-#define GUARD_QUAKE_VIDEO_H
+#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_ENUMS_LOCAL_H
+#define GUARD_QUAKE_GRAPHICS_LOCAL_ENUMS_LOCAL_H
 
-#include <stdbool.h>
-#include "common/types/Byte.h"
+enum ImageType {
+        IT_SKIN,
+        IT_SPRITE,
+        IT_WALL,
+        IT_PIC,
+        IT_SKY
+}; // image_t
 
-struct Video {
-	Byte *buffer;
-	Byte *colormap;
-	Byte *alphamap;
-	int rowBytes;
-	int width;
-	int height;
-	int bufferSize;
-	long: 64;
-	long: 64;
-	long: 64;
-}; // viddef_t
-
-void VID_NewVideo(int width, int height);
-bool VID_GetModeInfo(int *width, int *height, int mode);
+enum GraphicsErrorType {
+	GERR_OK,
+	GERR_INVALID_FULLSCREEN,
+	GERR_INVALID_MODE,
+	GERR_UNKNOWN
+}; // rserr_t
 
 #endif
 
@@ -27,7 +23,7 @@ bool VID_GetModeInfo(int *width, int *height, int mode);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/client/video.h
+source: include/graphics/local/enums/local.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

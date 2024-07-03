@@ -3,11 +3,9 @@
 #include <endian.h>
 
 #include "util.h"
-#include "graphics.h"
+#include "common.h"
 #include "system.h"
-#include "structs/CtrlVar.h"
-#include "common/CtrlVar.h"
-#include "common/main.h"
+#include "graphics.h"
 
 static void asserts (void)
 {

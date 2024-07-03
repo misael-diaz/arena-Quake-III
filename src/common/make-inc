@@ -16,14 +16,10 @@
 INC = -I../../include
 UTIL_H = ../../include/util.h
 GRAPHICS_H = ../../include/graphics.h
-STRUCTS_CONTROL_VARIABLES_H = ../../include/structs/CtrlVar.h
-COMMON_CONTROL_VARIABLES_H = ../../include/common/CtrlVar.h
-COMMON_MAIN_H = ../../include/common/main.h
+COMMON_H = ../../include/common.h
 HEADERS = $(UTIL_H)\
 	  $(GRAPHICS_H)\
-	  $(STRUCTS_CONTROL_VARIABLES_H)\
-	  $(COMMON_CONTROL_VARIABLES_H)\
-	  $(COMMON_MAIN_H)
+	  $(COMMON_H)
 
 MAIN_C = main.c
 CONTROL_VARIABLES_C = CtrlVar.c

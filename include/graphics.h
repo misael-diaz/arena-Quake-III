@@ -1,11 +1,7 @@
 #ifndef GUARD_QUAKE_GRAPHICS_H
 #define GUARD_QUAKE_GRAPHICS_H
 
-void Graphics_Init(void);
-void Graphics_BeginFrame(void);
-void Graphics_EndFrame(void);
-void Graphics_Shutdown(void);
-void Graphics_Free(void);
+#include "graphics/graphics.h"
 
 #endif
 

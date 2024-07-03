@@ -1,24 +1,12 @@
-#ifndef GUARD_QUAKE_VIDEO_H
-#define GUARD_QUAKE_VIDEO_H
+#ifndef GUARD_QUAKE_GAME_DEFS_H
+#define GUARD_QUAKE_GAME_DEFS_H
 
-#include <stdbool.h>
-#include "common/types/Byte.h"
-
-struct Video {
-	Byte *buffer;
-	Byte *colormap;
-	Byte *alphamap;
-	int rowBytes;
-	int width;
-	int height;
-	int bufferSize;
-	long: 64;
-	long: 64;
-	long: 64;
-}; // viddef_t
-
-void VID_NewVideo(int width, int height);
-bool VID_GetModeInfo(int *width, int *height, int mode);
+#define MAX_QPATH 64
+#define MAX_MD2SKINS 32
+#define MAXLIGHTMAPS 4
+#define MAX_MAP_LEAFS 0x10000
+#define MIPLEVELS 4
+#define MODEL_NOVIS_SIZE (MAX_MAP_LEAFS / 8)
 
 #endif
 
@@ -27,7 +15,7 @@ bool VID_GetModeInfo(int *width, int *height, int mode);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/client/video.h
+source: include/game/defs.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

@@ -1,24 +1,13 @@
-#ifndef GUARD_QUAKE_VIDEO_H
-#define GUARD_QUAKE_VIDEO_H
+#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_H
+#define GUARD_QUAKE_GRAPHICS_LOCAL_H
 
-#include <stdbool.h>
-#include "common/types/Byte.h"
+#define XCENTERING 0.5f
+#define YCENTERING 0.5f
 
-struct Video {
-	Byte *buffer;
-	Byte *colormap;
-	Byte *alphamap;
-	int rowBytes;
-	int width;
-	int height;
-	int bufferSize;
-	long: 64;
-	long: 64;
-	long: 64;
-}; // viddef_t
+#include "local/enums/local.h"
+#include "local/structs/local.h"
 
-void VID_NewVideo(int width, int height);
-bool VID_GetModeInfo(int *width, int *height, int mode);
+void D_FlushCaches(void);
 
 #endif
 
@@ -27,7 +16,7 @@ bool VID_GetModeInfo(int *width, int *height, int mode);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/client/video.h
+source: include/graphics/local.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

@@ -1,16 +1,16 @@
-#ifndef GUARD_QUAKE_BYTE_H
-#define GUARD_QUAKE_BYTE_H
+#include <stdio.h>
 
-typedef unsigned char Byte;
-
-#endif
+void D_FlushCaches (void)
+{
+	return;
+}
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/types/Byte.h
+source: src/graphics/surface.c
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

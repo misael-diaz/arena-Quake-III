@@ -1,24 +1,10 @@
-#ifndef GUARD_QUAKE_VIDEO_H
-#define GUARD_QUAKE_VIDEO_H
+#ifndef GUARD_QUAKE_GRAPHICS_DRAW_H
+#define GUARD_QUAKE_GRAPHICS_DRAW_H
 
-#include <stdbool.h>
-#include "common/types/Byte.h"
-
-struct Video {
-	Byte *buffer;
-	Byte *colormap;
-	Byte *alphamap;
-	int rowBytes;
-	int width;
-	int height;
-	int bufferSize;
-	long: 64;
-	long: 64;
-	long: 64;
-}; // viddef_t
-
-void VID_NewVideo(int width, int height);
-bool VID_GetModeInfo(int *width, int *height, int mode);
+void Draw_BuildGammaTable(void);
+void Draw_GetPalette(void);
+void Draw_PatchQuakePalette(void);
+void Draw_InitLocal(void);
 
 #endif
 
@@ -27,7 +13,7 @@ bool VID_GetModeInfo(int *width, int *height, int mode);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/client/video.h
+source: include/graphics/draw.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

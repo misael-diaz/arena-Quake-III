@@ -15,14 +15,31 @@
 
 INC = -I../../include
 UTIL_H = ../../include/util.h
+COMMON_H = ../../include/common.h
+VIDEO_H = ../../include/video.h
 GRAPHICS_H = ../../include/graphics.h
-GRAPHICS_MODEL_H = ../../include/graphics/model.h
-HEADERS = $(UTIL_H) $(GRAPHICS_H)
+HEADERS = $(UTIL_H)\
+	  $(VIDEO)\
+	  $(COMMON)\
+	  $(GRAPHICS_H)
 
 BSP_C = bsp.c
+MODEL_C = model.c
+DRAW_C = draw.c
+SURFACE_C = surface.c
 GRAPHICS_C = graphics.c
 MAIN_C = main.c
 
 BSP_O = bsp.o
+DRAW_O = draw.o
+MODEL_O = model.o
+SURFACE_O = surface.o
 GRAPHICS_O = graphics.o
 MAIN_O = main.o
+OBJS_O = $(BSP_O)\
+	 $(DRAW_O)\
+	 $(MODEL_O)\
+	 $(MODEL_O)\
+	 $(SURFACE_O)\
+	 $(GRAPHICS_O)\
+	 $(MAIN_O)

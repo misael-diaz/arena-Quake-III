@@ -16,25 +16,23 @@
 INC = -I../../include
 UTIL_H = ../../include/util.h
 GRAPHICS_H = ../../include/graphics.h
-STR_CTRLVAR_H = ../../include/structs/CtrlVar.h
-COM_CTRLVAR_H = ../../include/common/CtrlVar.h
-COM_MAIN_H = ../../include/common/main.h
+COMMON_H = ../../include/common.h
 SYSTEM_H = ../../include/system.h
 HEADERS = $(UTIL_H)\
 	  $(GRAPHICS_H)\
-	  $(STR_CTRLVAR_H)\
-	  $(COM_CTRLVAR_H)\
-	  $(COM_MAIN_H)\
+	  $(COMMON_H)\
 	  $(SYSTEM_H)
 
-UTIL_C = util/util.c
-VIDEO_C = video/video.c
-GRAPHICS_C = graphics/graphics.c
-SYSTEM_C = system/system.c
 MAIN_C = main.c
 
 UTIL_O = ../util/util.o
 VIDEO_O = ../video/video.o
+VECTOR_O = ../vector/vector.o
+G_BSP_O = ../graphics/bsp.o
+G_DRAW_O = ../graphics/draw.o
+G_MODEL_O = ../graphics/model.o
+G_SURFACE_O = ../graphics/surface.o
+G_MAIN_O = ../graphics/main.o
 GRAPHICS_O = ../graphics/graphics.o
 SYSTEM_O = ../system/system.o
 COM_CTRLVAR_O = ../common/CtrlVar.o
@@ -42,6 +40,12 @@ COM_MAIN_O = ../common/main.o
 MAIN_O = main.o
 OBJECTS_O = $(UTIL_O)\
 	    $(VIDEO_O)\
+	    $(VECTOR_O)\
+	    $(G_BSP_O)\
+	    $(G_DRAW_O)\
+	    $(G_MODEL_O)\
+	    $(G_SURFACE_O)\
+	    $(G_MAIN_O)\
 	    $(GRAPHICS_O)\
 	    $(SYSTEM_O)\
 	    $(COM_CTRLVAR_O)\

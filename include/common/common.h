@@ -1,7 +1,12 @@
-#ifndef GUARD_QUAKE_VECTOR_H
-#define GUARD_QUAKE_VECTOR_H
+#ifndef GUARD_QUAKE_COMMON_COMMON_H
+#define GUARD_QUAKE_COMMON_COMMON_H
 
-void Vector3DCopy(const struct Vector3D *u, struct Vector3D *v);
+#include "types/Byte.h"
+#include "structs/Vector.h"
+#include "structs/CtrlVar.h"
+#include "CtrlVar.h"
+#include "vector.h"
+#include "main.h"
 
 #endif
 
@@ -10,7 +15,7 @@ void Vector3DCopy(const struct Vector3D *u, struct Vector3D *v);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/vector.h
+source: include/common/common.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

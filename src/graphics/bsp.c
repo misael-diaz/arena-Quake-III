@@ -1,4 +1,4 @@
-#include "types/Vector.h"
+#include "common.h"
 
 struct Vector3D modelorg;
 

@@ -1,6 +1,6 @@
 #include "util.h"
 #include "graphics.h"
-#include "common/main.h"
+#include "common.h"
 
 void Q_Init (void)
 {

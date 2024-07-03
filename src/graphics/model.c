@@ -1,13 +1,23 @@
 #include <stdio.h>
+#include <string.h>
 
+#include "graphics.h"
+#include "game.h"
 
+int mod_registration_sequence = 0;
+Byte mod_novis[MODEL_NOVIS_SIZE];
+
+void MOD_Init (void)
+{
+        memset(mod_novis, 255, MODEL_NOVIS_SIZE);
+}
 
 /*
 
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: src/model/model.c
+source: src/graphics/model.c
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 
