@@ -4,7 +4,8 @@
 #include "model/enums/model.h"
 #include "model/structs/model.h"
 
-void MOD_Init(void);
+struct ModelLeaf *Model_PointInLeaf(struct Vector const *r, struct Model *model);
+void Model_Init(void);
 
 #endif
 

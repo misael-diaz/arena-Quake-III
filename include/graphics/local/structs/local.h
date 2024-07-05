@@ -9,8 +9,8 @@
 
 struct ClipPlane {
 	struct ClipPlane *next;
-	struct Vector3D normal;
-	float dist;
+	struct Vector normal;
+	float dist;	// if you change to double, update R_SetUpFrustumIndexes()
 	Byte leftedge;
 	Byte rightedge;
 	Byte reserved[2];
@@ -55,30 +55,28 @@ struct ViewRectangle {
 	int y;
 }; // vrect_t;
 
-struct OldReferenceDefinition {
-	struct ViewRectangle vrect;
-	struct ViewRectangle aliasvrect;
-	struct Vector3D vieworg;
-	struct Vector3D viewangles;
-	float vrectrightedge;
-	float fvrectx;
-	float fvrecty;
-	float fvrectx_adj;
-	float fvrecty_adj;
-	float fvrectright;
-	float fvrectbottom;
-	float fvrectright_adj;
-	float fvrectbottom_adj;
-	float horizontalFieldOfView;
+struct OldRefreshDefinition {
+	struct ViewRectangle viewRect;
+	struct Vector vieworg;
+	struct Vector viewangles;
+	float fViewRectRightEdge;
+	float fViewRectX;
+	float fViewRectY;
+	float fViewRectX_adj;
+	float fViewRectY_adj;
+	float fViewRectRight;
+	float fViewRectBottom;
+	float fViewRectRight_adj;
+	float fViewRectBottom_adj;
+	float fHorizontalFieldOfView;
+	float fVerticalFieldOfView;
 	float xOrigin;
 	float yOrigin;
 	int ambientlight;
-	int aliasvrectright;
-	int aliasvrectbottom;
-	int vrectright;
-	int vrectbottom;
-	int vrectright_adj_shift20;
-	int vrect_x_adj_shift20;
+	int viewRectRight;
+	int viewRectBottom;
+	int viewRectRight_adj_shift20;
+	int viewRectX_adj_shift20;
 }; // oldrefdef_t
 
 #endif

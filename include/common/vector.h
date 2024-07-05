@@ -1,7 +1,13 @@
 #ifndef GUARD_QUAKE_COMMON_VECTOR_H
 #define GUARD_QUAKE_COMMON_VECTOR_H
 
-void Vector3DCopy(const struct Vector3D *u, struct Vector3D *v);
+float DotProduct(struct Vector const *u, struct Vector const *v);
+void VectorCopy(const struct Vector *u, struct Vector *v);
+void VectorNormalize(struct Vector *vec);
+void AngleVectors(struct Vector const *angles,
+		  struct Vector *forward,
+		  struct Vector *right,
+		  struct Vector *up);
 
 #endif
 

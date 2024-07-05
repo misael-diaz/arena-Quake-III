@@ -1,5 +1,9 @@
 #include <stdio.h>
 
+struct CacheSurface *cs_base = NULL;
+struct CacheSurface *cs_rover = NULL;
+int cs_size = 0;
+
 void D_FlushCaches (void)
 {
 	return;

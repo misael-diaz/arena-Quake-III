@@ -32,6 +32,7 @@ static char *CVAR_CopyString (char const *string)
 
 static float CVAR_GetData (char const *value)
 {
+	errno = 0;
 	char *endptr[] = {NULL};
 	float data = strtof(value, endptr);
 	if (**endptr == *value) {
@@ -40,7 +41,7 @@ static float CVAR_GetData (char const *value)
 		exit(EXIT_FAILURE);
 	}
 
-	if (errno) {
+	if (ERANGE == errno) {
 		Q_Shutdown();
 		fprintf(stderr, "CVAR_GetData: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);

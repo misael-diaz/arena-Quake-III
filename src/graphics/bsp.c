@@ -1,6 +1,6 @@
 #include "common.h"
 
-struct Vector3D modelorg;
+struct Vector modelorg;
 
 /*
 

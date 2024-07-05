@@ -1,7 +1,7 @@
 #ifndef GUARD_QUAKE_COMMON_STRUCTS_VECTOR_H
 #define GUARD_QUAKE_COMMON_STRUCTS_VECTOR_H
 
-struct Vector3D {
+struct Vector {
 	float x;
 	float y;
 	float z;

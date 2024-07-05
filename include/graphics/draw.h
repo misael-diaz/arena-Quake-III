@@ -3,6 +3,7 @@
 
 void Draw_BuildGammaTable(void);
 void Draw_GetPalette(void);
+void Draw_Fill(int x, int y, int width, int height, int color);
 void Draw_PatchQuakePalette(void);
 void Draw_InitLocal(void);
 

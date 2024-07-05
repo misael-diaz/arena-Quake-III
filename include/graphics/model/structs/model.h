@@ -10,7 +10,7 @@
 #include "../../model/enums/model.h"
 
 struct ModelPlane {
-        struct Vector3D normal;
+        struct Vector normal;
         float dist;
         Byte type;
         Byte signbits;
@@ -52,27 +52,32 @@ struct DataModel {
 	int numfaces;
 }; // dmodel_t
 
+// TODO: make sizeof(ModelNode) = sizeof(ModeLeaf) so that we can cast from one to another
+// with confidence
 struct ModelNode {
+	int contents;
+	int visframe;
+	int minmaxs[6];
 	struct ModelNode *parent;
 	struct ModelNode *children[2];
 	struct ModelPlane *plane;
-	int minmaxs[6];
-	int contents;
-	int visframe;
 	int firstsurface;
 	int numsurfaces;
+	long: 64;
 }; // mnode_t
 
 struct ModelLeaf {
-	struct ModelNode *parent;
-	struct ModelSurface **firstmarksurface;
-	int minmaxs[6];
 	int contents;
 	int visframe;
+	int minmaxs[6];
+	struct ModelNode *parent;
+	struct ModelSurface **firstmarksurface;
 	int cluster;
 	int area;
 	int numMarkedSurfaces;
 	int key;
+	long: 64;
+	long: 64;
 }; // mleaf_t
 
 struct ModelEdge {
@@ -81,7 +86,7 @@ struct ModelEdge {
 }; // medge_t
 
 struct Vertex {
-	struct Vector3D position;
+	struct Vector position;
 }; // mvertex_t
 
 struct DataVisibility {
@@ -104,10 +109,10 @@ struct Model {
 	int *surfedges;
 	Byte *lightdata;
 	void *extradata;
-	struct Vector3D mins;
-	struct Vector3D maxs;
-	struct Vector3D clipmins;
-	struct Vector3D clipmaxs;
+	struct Vector mins;
+	struct Vector maxs;
+	struct Vector clipmins;
+	struct Vector clipmaxs;
 	char name[MAX_QPATH];
 	enum ModelType type;
 	int registration_sequence;
@@ -153,13 +158,13 @@ struct Span {
 }; // espan_t
 
 struct DataLight {
-	struct Vector3D origin;
-	struct Vector3D color;
+	struct Vector origin;
+	struct Vector color;
 	float intensity;
 }; // dlight_t
 
 struct Particle {
-        struct Vector3D origin;
+        struct Vector origin;
         float alpha;
         int color;
 }; // particle_t
@@ -188,14 +193,14 @@ struct Surface {
 	char xpad[3];
 }; // surf_t
 
-struct ReferenceDefinition {
+struct RefreshDefinition {
 	struct Entity *entities;
 	struct LigthStyle *lightstyles;
 	struct Particle *particles;
 	struct DataLight *dlights;
 	Byte *areabits;
-	struct Vector3D vieworg;
-	struct Vector3D viewangles;
+	struct Vector vieworg;
+	struct Vector viewangles;
 	float fov_x;
 	float fov_y;
 	float blend[4];

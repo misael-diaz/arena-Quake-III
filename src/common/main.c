@@ -10,8 +10,8 @@ void Q_Init (void)
 void Q_Shutdown (void)
 {
 	Util_Clear();
-	Graphics_Free();
-	Graphics_Shutdown();
+	Refresh_Free();
+	Refresh_Shutdown();
 }
 
 /*

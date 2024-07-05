@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <string.h>
@@ -10,19 +9,79 @@
 #include "common.h"
 #include "video.h"
 #include "graphics.h"
+#include "game.h"
 #include "util.h"
 
+#define NUM_MIPS 4
+
 extern Display *display;
+extern struct CacheSurface *cs_rover;
 extern struct Video Video;
-extern struct Vector3D modelorg;
+extern struct Vector modelorg;
 extern int mod_registration_sequence;
 
+struct CVar *graphics_mipcap;
+struct CVar *graphics_mipscale;
+struct Model *r_worldmodel = NULL;
+struct CacheSurface *d_initial_rover = NULL;
+struct ModelLeaf *r_viewleaf = NULL;
 struct CVar *fullbright = NULL;
+Byte *d_viewbuffer = NULL;
+// NOTE: if you change the type of d_pzbuffer you must also update d_zrowbytes accordingly
+short *d_pzbuffer = NULL;
+short *zspantable[MAXHEIGHT];
+
 struct GraphState GraphState;
-struct OldReferenceDefinition oldRefDef;
-struct Vector3D origin;
-struct OldReferenceDefinition oldRefDef;
-int framecount = 1;
+struct OldRefreshDefinition oldRefDef;
+struct RefreshDefinition refresh;
+struct ModelPlane screenEdge[NUM_SCREEN_EDGES];
+struct ClipPlane view_clipPlanes[NUM_VIEW_CLIP_PLANES];
+struct Vector r_origin;
+struct Vector base_vpn;
+struct Vector base_vright;
+struct Vector base_vup;
+struct Vector vpn;
+struct Vector vright;
+struct Vector vup;
+int *pfrustum_indexes[NUM_VIEW_CLIP_PLANES];
+int r_frustum_indexes[NUM_VIEW_CLIP_PLANES * (2 * NUM_AXES)];
+int d_scantable[MAXHEIGHT];
+static float basemip[NUM_MIPS - 1] = {1.0, 0.5 * 0.8, 0.25 * 0.8};
+float d_scalemip[NUM_MIPS - 1];
+float xOrigin = 0;
+float yOrigin = 0;
+float xcenter = 0;
+float ycenter = 0;
+float xscale = 0;
+float yscale = 0;
+float xscaleinv = 0;
+float yscaleinv = 0;
+float xscaleshrink = 0;
+float yscaleshrink = 0;
+float scale_for_mip = 0;
+int c_faceclip = 0;
+int r_polycount = 0;
+int r_drawnpolycount = 0;
+int r_wholepolycount = 0;
+int r_amodels_drawn = 0;
+int r_outofsurfaces = 0;
+int r_outofedges = 0;
+int r_framecount = 1;
+int r_viewcluster = 0;
+int r_screenwidth = 0;
+int d_zrowbytes = 0;
+int d_zwidth = 0;
+int d_pix_min = 0;
+int d_pix_max = 0;
+int d_pix_shift = 0;
+int d_viewRectX = 0;
+int d_viewRectY = 0;
+int d_spanpixcount = 0;
+int d_viewRectRight_particle = 0;
+int d_viewRectBottom_particle = 0;
+int d_aflatcolor = 0;
+int d_minmip = 0;
+bool d_roverwrapped = false;
 
 static struct CVar *vid_gamma;
 static struct CVar *vid_fullscreen;
@@ -31,45 +90,300 @@ static struct Image *r_notexture_mip = NULL;
 static struct ClipPlane view_clipplanes[4];
 static unsigned int curpalette[256];
 static Byte r_notexture_buffer[1024];
-static float r_aliasuvscale = 1.0f;
 
-void Graphics_SetupFrame (void)
+void Driver_Patch (void)
+{
+	return;	// no driver patch required for X86_64
+}
+
+void Driver_ViewChanged (void)
+{
+	scale_for_mip = (yscale > xscale)? yscale : xscale;
+
+	if (!refresh.width || !refresh.height) {
+		Q_Shutdown();
+		fprintf(stderr, "Driver_ViewChanged: InitNewRefDefError\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!d_pzbuffer) {
+		Q_Shutdown();
+		fprintf(stderr, "Driver_ViewChanged: NullZBufferError\n");
+		exit(EXIT_FAILURE);
+	}
+
+	d_zrowbytes = Video.width * sizeof(*d_pzbuffer);
+	d_zwidth = Video.width;
+
+	// note that 320 is the smallest supported video mode width
+	d_pix_min = (oldRefDef.viewRect.width / 320);
+	if (d_pix_min < 1) {
+		d_pix_min = 1;
+	}
+
+	d_pix_max = ((int) (((float) oldRefDef.viewRect.width) / (320.0f / 4.0f) + 0.5f));
+	if (d_pix_max < 1) {
+		d_pix_max = 1;
+	}
+
+	// NOTE: might break the code if we attempt an unsupported video mode
+	d_pix_shift = 8 - ((int) (((float) oldRefDef.viewRect.width) / 320.0f + 0.5f));
+	if (oldRefDef.viewRect.width > 1600) {
+		Q_Shutdown();
+		fprintf(stderr, "Driver_ViewChanged: UnsupportedVideoMode\n");
+		exit(EXIT_FAILURE);
+	}
+
+	d_viewRectX = oldRefDef.viewRect.x;
+	d_viewRectY = oldRefDef.viewRect.y;
+	d_viewRectRight_particle = oldRefDef.viewRectRight - d_pix_max;
+	d_viewRectBottom_particle = oldRefDef.viewRectBottom - d_pix_max;
+
+	for (int i = 0; i != Video.height; ++i) {
+		d_scantable[i] = i * r_screenwidth;
+		zspantable[i] = d_pzbuffer + i * d_zwidth;
+	}
+
+	if (refresh.RDFlags & RDF_NOWORLDMODEL) {
+		int d_pzbuffer_sz = Video.width * Video.height * sizeof(*d_pzbuffer);
+		memset(d_pzbuffer, 0xff, d_pzbuffer_sz);
+		int black = 0;
+		int color = black;
+		Draw_Fill(refresh.x, refresh.y, refresh.width, refresh.height, color);
+	}
+
+	Driver_Patch();
+}
+
+void Refresh_ViewChanged (struct ViewRectangle *VR)
+{
+	oldRefDef.viewRect = *VR;
+	// hardcoded to the default Field-Of-View FOV of 90 degrees, ((*)) = tan(fov_x,y)
+	oldRefDef.fHorizontalFieldOfView = 2.0f * ((1.0f));
+	oldRefDef.fVerticalFieldOfView = 2.0f * ((Video.height / Video.width));
+
+	oldRefDef.fViewRectX = (float) oldRefDef.viewRect.x;
+	oldRefDef.fViewRectY = (float) oldRefDef.viewRect.y;
+
+	oldRefDef.fViewRectX_adj = oldRefDef.fViewRectX - 0.5f;
+	oldRefDef.fViewRectY_adj = oldRefDef.fViewRectY - 0.5f;
+
+	oldRefDef.viewRectX_adj_shift20 = (oldRefDef.viewRect.x << 20) + ((1<<19) - 1);
+
+	oldRefDef.viewRectRight = oldRefDef.viewRect.x + oldRefDef.viewRect.width;
+
+	oldRefDef.fViewRectRight = (float) oldRefDef.viewRectRight;
+	oldRefDef.fViewRectRight_adj = oldRefDef.fViewRectRight - 0.5f;
+
+	oldRefDef.viewRectRight_adj_shift20 = (
+			(oldRefDef.viewRectRight << 20) + ((1 << 19) - 1)
+			);
+
+	// setting the x, y, width, height, screenedge (plane) normals, and the rightedge
+	// x-coordinate we are done defining the frustum; check my sketches and math
+	oldRefDef.fViewRectRightEdge = oldRefDef.fViewRectRight - 0.99f;
+
+	oldRefDef.viewRectBottom = oldRefDef.viewRect.y + oldRefDef.viewRect.height;
+	oldRefDef.fViewRectBottom = (float) oldRefDef.viewRectBottom;
+	oldRefDef.fViewRectBottom_adj = oldRefDef.fViewRectBottom - 0.5f;
+
+	// NOTE: xOrigin = yOrigin = (1 - xOrigin) = (1 - yOrigin) = 0.5 (screenedges)
+	xOrigin = oldRefDef.xOrigin;
+	yOrigin = oldRefDef.yOrigin;
+
+	xcenter = (((float) oldRefDef.viewRect.width) * XCENTERING) +
+		  (((float) oldRefDef.viewRect.x) - 0.5f);
+	ycenter = (((float) oldRefDef.viewRect.height) * YCENTERING) +
+		  (((float) oldRefDef.viewRect.y) - 0.5f);
+
+	// we end up with xscale = yscale anyways as in the original source
+	xscale = ((float) oldRefDef.viewRect.width) / oldRefDef.fHorizontalFieldOfView;
+	yscale = ((float) oldRefDef.viewRect.height) / oldRefDef.fVerticalFieldOfView;
+
+	xscaleinv = 1.0f / xscale;
+	yscaleinv = 1.0f / yscale;
+
+	xscaleshrink = (oldRefDef.viewRect.width - 6) / oldRefDef.fHorizontalFieldOfView;
+	yscaleshrink = xscaleshrink;
+
+	// left side clip
+	screenEdge[0].normal.x = -1.0f / (xOrigin * oldRefDef.fHorizontalFieldOfView);
+	screenEdge[0].normal.y = +0.0f;
+	screenEdge[0].normal.z = +1.0f;
+	screenEdge[0].type = PLANE_ANYZ;
+	
+	// right side clip
+	screenEdge[1].normal.x = +1.0f / (xOrigin * oldRefDef.fHorizontalFieldOfView);
+	screenEdge[1].normal.y = +0.0f;
+	screenEdge[1].normal.z = +1.0f;
+	screenEdge[1].type = PLANE_ANYZ;
+	
+	// top side clip
+	screenEdge[2].normal.x = +0.0f;
+	screenEdge[2].normal.y = -1.0f / (yOrigin * oldRefDef.fVerticalFieldOfView);
+	screenEdge[2].normal.z = +1.0f;
+	screenEdge[2].type = PLANE_ANYZ;
+
+	// bottom side clip
+	screenEdge[3].normal.x = +0.0f;
+	screenEdge[3].normal.y = +1.0f / (yOrigin * oldRefDef.fVerticalFieldOfView);
+	screenEdge[3].normal.z = +1.0f;
+	screenEdge[3].type = PLANE_ANYZ;
+
+	for (int i = 0; i != NUM_SCREEN_EDGES; ++i) {
+		VectorNormalize(&screenEdge[i].normal);
+	}
+
+	Driver_ViewChanged();
+}
+
+static void Refresh_BindFrustumIndexes (void)
+{
+	int *pindex = r_frustum_indexes;
+	for (int i = 0; i != NUM_VIEW_CLIP_PLANES; ++i) {
+		pfrustum_indexes[i] = pindex;
+	}
+}
+
+// transforms A * u = v, where A is a matrix and u and v are vectors (see sketches)
+void Refresh_TransformFrustum (void)
+{
+	for (int i = 0; i != NUM_VIEW_CLIP_PLANES; ++i) {
+		struct Vector u;
+		u.x = +screenEdge[i].normal.z;	// vpn (or vforward) is the new Z axis
+		u.y = -screenEdge[i].normal.x;	// vright is the new -X axis
+		u.z = +screenEdge[i].normal.y;	// vup is the new Y axis
+
+		struct Vector v;
+		v.x = u.x * vpn.x + u.y * vright.x + u.z * vup.x;
+		v.y = u.x * vpn.y + u.y * vright.y + u.z * vup.y;
+		v.z = u.x * vpn.z + u.y * vright.z + u.z * vup.z;
+
+		VectorNormalize(&v);
+		VectorCopy(&v, &view_clipPlanes[i].normal);
+		view_clipPlanes[i].dist = DotProduct(&v, &modelorg);
+	}
+}
+
+void Refresh_SetUpFrustumIndexes (void)
+{
+	int *pindex = r_frustum_indexes;
+	for (int i = 0; i != NUM_VIEW_CLIP_PLANES; ++i) {
+		float const *normal = (float const*) &view_clipPlanes[i].normal.x;
+		for (int j = 0; j != NUM_AXES; ++j) {
+			if (normal[j] < 0.0f) {
+				pindex[j] = j;
+				pindex[j + NUM_AXES] = (j + NUM_AXES);
+			} else {
+				pindex[j] = j + NUM_AXES;
+				pindex[j + NUM_AXES] = j;
+			}
+		}
+		pindex += (2 * NUM_AXES);
+	}
+}
+
+void Refresh_SetupFrame (void)
 {
 	if (fullbright->modified) {
 		fullbright->modified = false;
 		D_FlushCaches();
 	}
 
-	++framecount;
+	++r_framecount;
 
 	struct ViewRectangle viewRectangle;
-	Vector3DCopy(&oldRefDef.vieworg, &modelorg);
-	Vector3DCopy(&oldRefDef.vieworg, &origin);
+	VectorCopy(&oldRefDef.vieworg, &modelorg);
+	VectorCopy(&oldRefDef.vieworg, &r_origin);
 
-	// TODO: there's a lot to do here still
+	AngleVectors(&oldRefDef.viewangles, &vpn, &vright, &vup);
+
+	if (!(refresh.RDFlags & RDF_NOWORLDMODEL)) {
+		r_viewleaf = Model_PointInLeaf(&r_origin, r_worldmodel);
+		r_viewcluster = r_viewleaf->cluster;
+	}
+
+	// hardcoding ViewRectangle to the screen dimensions for simplicity;
+	// if the users request a 100% viewsize that's what they would get anyways
+	if (!refresh.width || !refresh.height) {
+		Q_Shutdown();
+		fprintf(stderr, "Refresh_SetupFrame: InitRefreshError\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!refresh.width || !refresh.height) {
+		Q_Shutdown();
+		fprintf(stderr, "Driver_ViewChanged: InitNewRefDefError\n");
+		exit(EXIT_FAILURE);
+	}
+
+	viewRectangle.x = refresh.x;
+	viewRectangle.y = refresh.y;
+	viewRectangle.width = refresh.width;
+	viewRectangle.height = refresh.height;
+
+	d_viewbuffer = Video.buffer;
+	r_screenwidth = Video.rowBytes;
+
+	Refresh_ViewChanged(&viewRectangle);
+	Refresh_TransformFrustum();
+	Refresh_SetUpFrustumIndexes();
+
+	VectorCopy(&vpn, &base_vpn);
+	VectorCopy(&vright, &base_vright);
+	VectorCopy(&vup, &base_vup);
+
+	c_faceclip = 0;
+	d_spanpixcount = 0;
+	r_polycount = 0;
+	r_drawnpolycount = 0;
+	r_wholepolycount = 0;
+	r_amodels_drawn = 0;
+	r_outofsurfaces = 0;
+	r_outofedges = 0;
+
+	d_roverwrapped = false;
+	d_initial_rover = cs_rover;
+
+	d_minmip = graphics_mipcap->data;
+	if (d_minmip > 3) {
+		d_minmip = 3;
+	} else if (d_minmip < 0) {
+		d_minmip = 0;
+	}
+
+	for (int i = 0 ; i != (NUM_MIPS - 1); ++i) {
+		d_scalemip[i] = basemip[i] * graphics_mipscale->data;
+	}
+
+	d_aflatcolor = 0;
 }
 
-void Graphics_RenderFrame (struct ReferenceDefinition *RD)
+void Refresh_RenderFrame (struct RefreshDefinition *RD)
 {
-	struct ReferenceDefinition newRD = *RD;
-	Vector3DCopy(&RD->vieworg, &newRD.vieworg);
-	Vector3DCopy(&RD->viewangles, &newRD.viewangles);
+	refresh = *RD;
 
+	VectorCopy(&RD->vieworg, &oldRefDef.vieworg);
+	VectorCopy(&RD->viewangles, &oldRefDef.viewangles);
+
+	Refresh_SetupFrame();
 	// TODO: there's also a lot to do here
 }
 
-void Graphics_Register (void)
+void Refresh_Register (void)
 {
 	fullbright = CVAR_GetCVar("fullbright", "0", 0);
 	vid_gamma = CVAR_GetCVar("vid_gamma", "1", 0);
 	vid_fullscreen = CVAR_GetCVar("vid_fullscreen", "0", 0);
 	graphics_mode = CVAR_GetCVar("graphics_mode", "8", 0);
+	graphics_mipcap = CVAR_GetCVar("graphics_mipcap", "0", 0);
+	graphics_mipscale = CVAR_GetCVar("graphics_mipscale", "1", 0);
 
 	vid_gamma->modified = true;
 	graphics_mode->modified = true;
 }
 
-void Graphics_InitTextures (void)
+void Refresh_InitTextures (void)
 {
 	r_notexture_mip = (struct Image*) r_notexture_buffer;
 	r_notexture_mip->width = r_notexture_mip->height = 16;
@@ -94,22 +408,22 @@ void Graphics_InitTextures (void)
 	}
 }
 
-void Graphics_InitImages (void)
+void Refresh_InitImages (void)
 {
 	mod_registration_sequence = 1;
 }
 
-void Graphics_EndFrame (void)
+void Refresh_EndFrame (void)
 {
 	Graphics_ImpEndFrame();
 }
 
-void Graphics_Shutdown (void)
+void Refresh_Shutdown (void)
 {
 	Graphics_ImpShutdown();
 }
 
-void Graphics_Free (void)
+void Refresh_Free (void)
 {
 	Graphics_ImpShutdown();
 	if (display) {
@@ -118,7 +432,7 @@ void Graphics_Free (void)
 	}
 }
 
-void Graphics_GammaCorrectAndSetPalette (Byte const *palette)
+void Refresh_GammaCorrectAndSetPalette (Byte const *palette)
 {
 	Byte const *gammatable = (Byte const*) GraphState.gammatable;
 	Byte *currentpalette = GraphState.currentpalette;
@@ -131,24 +445,25 @@ void Graphics_GammaCorrectAndSetPalette (Byte const *palette)
 	Graphics_ImpSetPalette(currentpalette);
 }
 
-void Graphics_InitGraphics (int width, int height)
+void Refresh_InitGraphics (int width, int height)
 {
 	if (width == 0 || height == 0) {
-		fprintf(stderr, "Graphics_InitGraphics: InitError");
+		fprintf(stderr, "Refresh_InitGraphics: InitError");
 		return;
 	}
 
 	Video.width = width;
 	Video.height = height;
 
-	Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
+	Refresh_BindFrustumIndexes();
+	Refresh_GammaCorrectAndSetPalette((Byte const*) curpalette);
 }
 
-void Graphics_BeginFrame (void)
+void Refresh_BeginFrame (void)
 {
 	if (vid_gamma->modified) {
 		Draw_BuildGammaTable();
-		Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
+		Refresh_GammaCorrectAndSetPalette((Byte const*) curpalette);
 		vid_gamma->modified = false;
 	}
 
@@ -158,25 +473,25 @@ void Graphics_BeginFrame (void)
 								 graphics_mode->data,
 								 vid_fullscreen->data);
 		if (err) {
-			fprintf(stderr, "Graphics_BeginFrame: SetModeError\n");
-			Graphics_Shutdown();
+			fprintf(stderr, "Refresh_BeginFrame: SetModeError\n");
+			Refresh_Shutdown();
 			XCloseDisplay(display);
 			Util_Clear();
 			exit(EXIT_FAILURE);
 		}
-		Graphics_InitGraphics(Video.width, Video.height);
+		Refresh_InitGraphics(Video.width, Video.height);
 		GraphState.prev_mode = graphics_mode->data;
 		vid_fullscreen->modified = false;
 		graphics_mode->modified = false;
 	}
 }
 
-void Graphics_Init (void)
+void Refresh_Init (void)
 {
-	Graphics_InitImages();
-	MOD_Init();
+	Refresh_InitImages();
+	Model_Init();
 	Draw_InitLocal();
-	Graphics_InitTextures();
+	Refresh_InitTextures();
 
 	view_clipplanes[0].leftedge = true;	view_clipplanes[0].rightedge = false;
 	view_clipplanes[1].leftedge = false;	view_clipplanes[1].rightedge = true;
@@ -186,13 +501,11 @@ void Graphics_Init (void)
 	oldRefDef.xOrigin = XCENTERING;
 	oldRefDef.yOrigin = YCENTERING;
 
-	r_aliasuvscale = 1.0f;
-
-	Graphics_Register();
+	Refresh_Register();
 	Draw_GetPalette();
 	Graphics_ImpInit();
 
-	Graphics_BeginFrame();
+	Refresh_BeginFrame();
 	Draw_PatchQuakePalette();
 }
 

@@ -300,7 +300,7 @@ enum GraphicsErrorType Graphics_ImpSetMode (int *width,
 		return GERR_INVALID_MODE;
 	}
 
-	Graphics_GammaCorrectAndSetPalette((Byte const*) curpalette);
+	Refresh_GammaCorrectAndSetPalette((Byte const*) curpalette);
 
 	return GERR_OK;
 }

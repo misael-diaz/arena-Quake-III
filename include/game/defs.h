@@ -1,12 +1,37 @@
 #ifndef GUARD_QUAKE_GAME_DEFS_H
 #define GUARD_QUAKE_GAME_DEFS_H
 
+/* MY OWN DEFS */
+
+#define NUM_AXES 3
+#define NUM_SCREEN_EDGES 4
+#define NUM_VIEW_CLIP_PLANES NUM_SCREEN_EDGES
+
+/* QUAKE DEFS */
+
 #define MAX_QPATH 64
+#define MAXHEIGHT 1200
+#define MAXWIDTH 1600
 #define MAX_MD2SKINS 32
 #define MAXLIGHTMAPS 4
 #define MAX_MAP_LEAFS 0x10000
 #define MIPLEVELS 4
 #define MODEL_NOVIS_SIZE (MAX_MAP_LEAFS / 8)
+
+#define RDF_UNDERWATER 1
+#define RDF_NOWORLDMODEL 2
+#define RDF_IRGOGGLES 4
+#define RDF_UVGOGGLES 8
+
+// 0 - 2 are axial planes
+#define PLANE_X                 0
+#define PLANE_Y                 1
+#define PLANE_Z                 2
+
+// 3 - 5 are non-axial planes snapped to the nearest
+#define PLANE_ANYX              3
+#define PLANE_ANYY              4
+#define PLANE_ANYZ              5
 
 #endif
 

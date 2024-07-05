@@ -1,13 +1,13 @@
-#ifndef GUARD_QUAKE_GRAPHICS_MAIN_H
-#define GUARD_QUAKE_GRAPHICS_MAIN_H
+#ifndef GUARD_QUAKE_GRAPHICS_REFRESH_H
+#define GUARD_QUAKE_GRAPHICS_REFRESH_H
 
-void Graphics_Init(void);
-void Graphics_BeginFrame(void);
-void Graphics_EndFrame(void);
-void Graphics_Shutdown(void);
-void Graphics_Free(void);
-void Graphics_Register(void);
-void Graphics_GammaCorrectAndSetPalette(Byte const *palette);
+void Refresh_Init(void);
+void Refresh_BeginFrame(void);
+void Refresh_EndFrame(void);
+void Refresh_Shutdown(void);
+void Refresh_Free(void);
+void Refresh_Register(void);
+void Refresh_GammaCorrectAndSetPalette(Byte const *palette);
 
 #endif
 
@@ -16,7 +16,7 @@ void Graphics_GammaCorrectAndSetPalette(Byte const *palette);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/main.h
+source: include/graphics/refresh.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

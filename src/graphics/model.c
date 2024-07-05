@@ -1,13 +1,50 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "graphics.h"
 #include "game.h"
 
 int mod_registration_sequence = 0;
 Byte mod_novis[MODEL_NOVIS_SIZE];
 
-void MOD_Init (void)
+struct ModelLeaf *Model_PointInLeaf (struct Vector const *r, struct Model *model)
+{
+	if (!model || !model->nodes) {
+		Q_Shutdown();
+		fprintf(stderr, "Model_PointInLeaf: BadModelError\n");
+		exit(EXIT_FAILURE);
+	}
+
+	struct ModelNode *node = model->nodes;
+	while (true) {
+		if (node->contents != -1) {
+			return (struct ModelLeaf*) node;
+		}
+
+		struct ModelPlane *plane = node->plane;
+		if (!plane) {
+			Q_Shutdown();
+			fprintf(stderr, "Model_PointInLeaf: NullPlaneImpError\n");
+			exit(EXIT_FAILURE);
+		}
+
+		float d = DotProduct(r, &plane->normal) - plane->dist;
+		if (d > 0) {
+			node = node->children[0];
+		} else {
+			node = node->children[1];
+		}
+	}
+
+	Q_Shutdown();
+	fprintf(stderr, "Model_PointInLeaf: ImpError\n");
+	exit(EXIT_FAILURE);
+	return NULL;
+}
+
+void Model_Init (void)
 {
         memset(mod_novis, 255, MODEL_NOVIS_SIZE);
 }

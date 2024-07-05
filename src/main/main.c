@@ -10,6 +10,8 @@
 static void asserts (void)
 {
 	static_assert(__BYTE_ORDER == __LITTLE_ENDIAN);
+	static_assert(sizeof(struct ModelNode) == sizeof(struct ModelLeaf));
+	static_assert(sizeof(struct ModelNode) == 80);
 	static_assert(sizeof(struct CVar) == 64);
 	static_assert(sizeof(int) == 4);
 	static_assert(sizeof(long) == 8);
@@ -19,12 +21,12 @@ int main ()
 {
 	asserts();
 	printf("quake\n");
-	Graphics_Init();
-	Graphics_EndFrame();
+	Refresh_Init();
+	Refresh_EndFrame();
 	for (int i = 0; i != 4; ++i) {
 		Sys_DelayMillis();
-		Graphics_BeginFrame();
-		Graphics_EndFrame();
+		Refresh_BeginFrame();
+		Refresh_EndFrame();
 	}
 	Q_Shutdown();
 	return 0;
