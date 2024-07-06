@@ -1,8 +1,10 @@
+data
 demo
 TODO
 NOTES
 *assets
 *.err
+*.pak
 *.log
 *.zip
 *.swp

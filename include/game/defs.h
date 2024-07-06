@@ -10,6 +10,7 @@
 /* QUAKE DEFS */
 
 #define MAX_QPATH 64
+#define MAX_OSPATH 128
 #define MAXHEIGHT 1200
 #define MAXWIDTH 1600
 #define MAX_MD2SKINS 32

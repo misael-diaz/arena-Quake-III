@@ -15,4 +15,4 @@
 
 CC = gcc-10
 CCOPT = -g -Wall -Wextra -Wformat -O0
-LIBS = -lX11 -lm
+LIBS = -lX11 -lmd -lm

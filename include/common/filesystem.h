@@ -1,13 +1,12 @@
-#ifndef GUARD_QUAKE_COMMON_COMMON_H
-#define GUARD_QUAKE_COMMON_COMMON_H
+#ifndef GUARD_QUAKE_COMMON_FILESYSTEM_H
+#define GUARD_QUAKE_COMMON_FILESYSTEM_H
 
-#include "types/Byte.h"
-#include "structs/Vector.h"
-#include "structs/CtrlVar.h"
-#include "filesystem.h"
-#include "CtrlVar.h"
-#include "vector.h"
-#include "main.h"
+#include <stdio.h>
+
+int FS_FOpenFile(char const *filename, FILE **file);
+int FS_FLoadFile(char const *filename, void **buffer);
+void FS_FCloseFile(FILE **file);
+void FS_Init(void);
 
 #endif
 
@@ -16,7 +15,7 @@
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/common/common.h
+source: include/common/filesystem.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

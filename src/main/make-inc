@@ -35,6 +35,7 @@ G_SURFACE_O = ../graphics/surface.o
 G_MAIN_O = ../graphics/main.o
 GRAPHICS_O = ../graphics/graphics.o
 SYSTEM_O = ../system/system.o
+COM_FS_O = ../common/filesystem.o
 COM_CTRLVAR_O = ../common/CtrlVar.o
 COM_MAIN_O = ../common/main.o
 MAIN_O = main.o
@@ -48,6 +49,7 @@ OBJECTS_O = $(UTIL_O)\
 	    $(G_MAIN_O)\
 	    $(GRAPHICS_O)\
 	    $(SYSTEM_O)\
+	    $(COM_FS_O)\
 	    $(COM_CTRLVAR_O)\
 	    $(COM_MAIN_O)\
 	    $(MAIN_O)

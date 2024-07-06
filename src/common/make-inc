@@ -17,15 +17,20 @@ INC = -I../../include
 UTIL_H = ../../include/util.h
 GRAPHICS_H = ../../include/graphics.h
 COMMON_H = ../../include/common.h
+GAME_H = ../../include/game.h
 HEADERS = $(UTIL_H)\
 	  $(GRAPHICS_H)\
-	  $(COMMON_H)
+	  $(COMMON_H)\
+	  $(GAME_H)
 
 MAIN_C = main.c
 CONTROL_VARIABLES_C = CtrlVar.c
+FS_C = filesystem.c
 
 CONTROL_VARIABLES_O = CtrlVar.o
 MAIN_O = main.o
+FS_O = filesystem.o
 
 OBJS_O = $(CONTROL_VARIABLES_O)\
+	 $(FS_O)\
 	 $(MAIN_O)

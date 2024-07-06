@@ -21,6 +21,10 @@ int main ()
 {
 	asserts();
 	printf("quake\n");
+	FS_Init();
+	void *map = NULL;
+	FS_FLoadFile("maps/demo1.bsp", &map);
+	/*
 	Refresh_Init();
 	Refresh_EndFrame();
 	for (int i = 0; i != 4; ++i) {
@@ -28,6 +32,7 @@ int main ()
 		Refresh_BeginFrame();
 		Refresh_EndFrame();
 	}
+	*/
 	Q_Shutdown();
 	return 0;
 }
