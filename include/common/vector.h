@@ -4,6 +4,7 @@
 float DotProduct(struct Vector const *u, struct Vector const *v);
 void VectorCopy(const struct Vector *u, struct Vector *v);
 void VectorNormalize(struct Vector *vec);
+void VectorClear(struct Vector *vec);
 void AngleVectors(struct Vector const *angles,
 		  struct Vector *forward,
 		  struct Vector *right,

@@ -9,12 +9,18 @@
 
 static void asserts (void)
 {
+	static_assert(sizeof(struct DataVisibility) == 68);
+	static_assert(MAX_MAP_VISIBILITY % sizeof(struct DataVisibility) == 0);
 	static_assert(__BYTE_ORDER == __LITTLE_ENDIAN);
+	static_assert(__FLOAT_WORD_ORDER == __LITTLE_ENDIAN);
+	static_assert(sizeof(struct Vector) == 12);
 	static_assert(sizeof(struct ModelNode) == sizeof(struct ModelLeaf));
 	static_assert(sizeof(struct ModelNode) == 80);
 	static_assert(sizeof(struct CVar) == 64);
 	static_assert(sizeof(int) == 4);
+	static_assert(sizeof(float) == 4);
 	static_assert(sizeof(long) == 8);
+	static_assert(sizeof(Byte) == 1);
 }
 
 int main ()
@@ -22,8 +28,7 @@ int main ()
 	asserts();
 	printf("quake\n");
 	FS_Init();
-	void *map = NULL;
-	FS_FLoadFile("maps/demo1.bsp", &map);
+	CM_LoadMap("maps/demo1.bsp");
 	/*
 	Refresh_Init();
 	Refresh_EndFrame();

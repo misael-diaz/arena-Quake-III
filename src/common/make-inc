@@ -24,13 +24,16 @@ HEADERS = $(UTIL_H)\
 	  $(GAME_H)
 
 MAIN_C = main.c
+CMODEL_C = cmodel.c
 CONTROL_VARIABLES_C = CtrlVar.c
 FS_C = filesystem.c
 
 CONTROL_VARIABLES_O = CtrlVar.o
 MAIN_O = main.o
+CMODEL_O = cmodel.o
 FS_O = filesystem.o
 
 OBJS_O = $(CONTROL_VARIABLES_O)\
 	 $(FS_O)\
+	 $(CMODEL_O)\
 	 $(MAIN_O)

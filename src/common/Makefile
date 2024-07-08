@@ -21,6 +21,9 @@ all: $(OBJS_O)
 $(MAIN_O): $(HEADERS) $(MAIN_C)
 	$(CC) $(INC) $(CCOPT) -c $(MAIN_C) -o $(MAIN_O)
 
+$(CMODEL_O): $(HEADERS) $(CMODEL_C)
+	$(CC) $(INC) $(CCOPT) -c $(CMODEL_C) -o $(CMODEL_O)
+
 $(FS_O): $(HEADERS) $(FS_C)
 	$(CC) $(INC) $(CCOPT) -c $(FS_C) -o $(FS_O)
 

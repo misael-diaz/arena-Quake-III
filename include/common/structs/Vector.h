@@ -5,7 +5,6 @@ struct Vector {
 	float x;
 	float y;
 	float z;
-	int: 32;
 };
 
 #endif

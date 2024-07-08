@@ -56,6 +56,13 @@ void VectorNormalize (struct Vector *vec)
 	vec->z *= v_inv;
 }
 
+void VectorClear (struct Vector *vec)
+{
+	vec->x = 0.0f;
+	vec->y = 0.0f;
+	vec->z = 0.0f;
+}
+
 void AngleVectors (struct Vector const *angles,
 		   struct Vector *forward,
 		   struct Vector *right,

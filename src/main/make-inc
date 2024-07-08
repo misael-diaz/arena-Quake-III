@@ -37,6 +37,7 @@ GRAPHICS_O = ../graphics/graphics.o
 SYSTEM_O = ../system/system.o
 COM_FS_O = ../common/filesystem.o
 COM_CTRLVAR_O = ../common/CtrlVar.o
+COM_CMODEL_O = ../common/cmodel.o
 COM_MAIN_O = ../common/main.o
 MAIN_O = main.o
 OBJECTS_O = $(UTIL_O)\
@@ -51,6 +52,7 @@ OBJECTS_O = $(UTIL_O)\
 	    $(SYSTEM_O)\
 	    $(COM_FS_O)\
 	    $(COM_CTRLVAR_O)\
+	    $(COM_CMODEL_O)\
 	    $(COM_MAIN_O)\
 	    $(MAIN_O)
 BIN = quake-III.bin

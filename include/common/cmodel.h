@@ -1,18 +1,7 @@
-#ifndef GUARD_QUAKE_COMMON_COMMON_H
-#define GUARD_QUAKE_COMMON_COMMON_H
+#ifndef GUARD_QUAKE_COMMON_CMODEL_H
+#define GUARD_QUAKE_COMMON_CMODEL_H
 
-#include "defs/qfiles.h"
-#include "types/Byte.h"
-#include "structs/Vector.h"
-#include "structs/CtrlVar.h"
-#include "structs/qshared.h"
-#include "structs/cmodel.h"
-#include "structs/qfiles.h"
-#include "filesystem.h"
-#include "CtrlVar.h"
-#include "vector.h"
-#include "cmodel.h"
-#include "main.h"
+struct CModel *CM_LoadMap(char const *name);
 
 #endif
 
@@ -21,7 +10,7 @@
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/common/common.h
+source: include/common/cmodel.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

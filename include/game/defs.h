@@ -15,7 +15,6 @@
 #define MAXWIDTH 1600
 #define MAX_MD2SKINS 32
 #define MAXLIGHTMAPS 4
-#define MAX_MAP_LEAFS 0x10000
 #define MIPLEVELS 4
 #define MODEL_NOVIS_SIZE (MAX_MAP_LEAFS / 8)
 
@@ -33,6 +32,9 @@
 #define PLANE_ANYX              3
 #define PLANE_ANYY              4
 #define PLANE_ANYZ              5
+
+#define CONTENTS_SOLID   0x00000001
+#define CONTENTS_MONSTER 0x02000000
 
 #endif
 

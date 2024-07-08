@@ -211,7 +211,7 @@ int FS_FLoadFile (char const *filename, void **buffer)
 		exit(EXIT_FAILURE);
 	}
 
-	if (*buffer) {
+	if (!buffer || *buffer) {
 		Q_Shutdown();
 		// we expect the actual buffer to be NULL
 		fprintf(stderr, "FS_FLoadFile: BufferError\n");

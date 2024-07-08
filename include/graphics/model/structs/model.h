@@ -43,15 +43,6 @@ struct ModelSurface {
 	int extents[2];
 }; // msurface_t
 
-struct DataModel {
-	float mins[3];
-	float maxs[3];
-	float origin[3];
-	int headnode;
-	int firstface;
-	int numfaces;
-}; // dmodel_t
-
 // TODO: make sizeof(ModelNode) = sizeof(ModeLeaf) so that we can cast from one to another
 // with confidence
 struct ModelNode {
@@ -88,11 +79,6 @@ struct ModelEdge {
 struct Vertex {
 	struct Vector position;
 }; // mvertex_t
-
-struct DataVisibility {
-	int numclusters;
-	int bitofs[8][2];
-}; // dvis_t
 
 struct Model {
 	struct Image *skins[MAX_MD2SKINS];

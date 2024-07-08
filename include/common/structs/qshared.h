@@ -1,18 +1,12 @@
-#ifndef GUARD_QUAKE_COMMON_COMMON_H
-#define GUARD_QUAKE_COMMON_COMMON_H
+#ifndef GUARD_QUAKE_COMMON_STRUCTS_QSHARED_H
+#define GUARD_QUAKE_COMMON_STRUCTS_QSHARED_H
 
-#include "defs/qfiles.h"
-#include "types/Byte.h"
-#include "structs/Vector.h"
-#include "structs/CtrlVar.h"
-#include "structs/qshared.h"
-#include "structs/cmodel.h"
-#include "structs/qfiles.h"
-#include "filesystem.h"
-#include "CtrlVar.h"
-#include "vector.h"
-#include "cmodel.h"
-#include "main.h"
+struct CModel {
+	struct Vector mins;
+	struct Vector maxs;
+	struct Vector origin;
+	int headnode;
+}; // cmodel_t
 
 #endif
 
@@ -21,7 +15,7 @@
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/common/common.h
+source: include/common/structs/qshared.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 
