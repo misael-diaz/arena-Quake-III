@@ -1,10 +1,12 @@
-#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_H
-#define GUARD_QUAKE_GRAPHICS_LOCAL_H
+#ifndef GUARD_QUAKE_CLIENT_DEFS_CLIENT_H
+#define GUARD_QUAKE_CLIENT_DEFS_CLIENT_H
 
-#include "local/enums/local.h"
-#include "local/structs/local.h"
+#define MAX_NUM_DLIGHTS      32
+#define MAX_NUM_ENTITIES     128
+#define MAX_NUM_LIGHT_STYLES 256
+#define MAX_NUM_PARTICLES    4096
 
-void D_FlushCaches(void);
+#define CMD_BACKUP 64
 
 #endif
 
@@ -13,7 +15,7 @@ void D_FlushCaches(void);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/local.h
+source: src/client/defs/client.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

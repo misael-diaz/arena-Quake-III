@@ -79,6 +79,21 @@ struct CVar *CVAR_GetCVar (char const *key, char const *value, int const flags)
 	return cvar;
 }
 
+void CVAR_FullSetCVar (char const *key, char const *value, int const flags)
+{
+	struct CVar *cvar = CVAR_FindCVar(key);
+	if (!cvar) {
+		CVAR_GetCVar(key, value, flags);
+		return;
+	}
+
+	cvar->value = Util_Free(cvar->value);
+	cvar->value = CVAR_CopyString(value);
+	cvar->data = CVAR_GetData(value);
+	cvar->flags = flags;
+	cvar->modified = true;
+}
+
 void CVAR_Init (void)
 {
 	// TODO: register commands

@@ -6,6 +6,7 @@
 #include "common.h"
 #include "system.h"
 #include "graphics.h"
+#include "client.h"
 
 static void asserts (void)
 {
@@ -29,6 +30,7 @@ int main ()
 	printf("quake\n");
 	FS_Init();
 	CM_LoadMap("maps/demo1.bsp");
+	View_PrepRefresh();
 	/*
 	Refresh_Init();
 	Refresh_EndFrame();

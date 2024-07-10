@@ -1,6 +1,8 @@
 #ifndef GUARD_QUAKE_GRAPHICS_GRAPHICS_H
 #define GUARD_QUAKE_GRAPHICS_GRAPHICS_H
 
+#include "defs/local.h"
+
 #include "X11.h"
 #include "draw.h"
 #include "model.h"

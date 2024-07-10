@@ -2,6 +2,7 @@
 #define GUARD_QUAKE_GAME_GAME_H
 
 #include "defs.h"
+#include "structs/game.h"
 #include "local.h"
 
 #endif

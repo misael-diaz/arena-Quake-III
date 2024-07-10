@@ -1,0 +1,41 @@
+#
+# Quake-III						June 07, 2024
+#
+# source: src/client/make-inc
+# author: @misael-diaz
+#
+# Synopsis:
+# Defines the include file for building the program with GNU make.
+#
+# Copyright (c) 2024 Misael Díaz-Maldonado
+# This file is released under the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+
+INC = -I../../include
+COMMON_H = ../../include/common.h
+VIDEO_H = ../../include/video.h
+GRAPHICS_H = ../../include/graphics.h
+CLIENT_H = ../../include/client.h
+GAME_H = ../../include/game.h
+HEADERS = $(COMMON_H)\
+	  $(VIDEO_H)\
+	  $(GRAPHICS_H)\
+	  $(GAME_H)\
+	  $(CLIENT_H)
+
+SCREEN_C = screen.c
+ENTITY_C = entity.c
+VIEW_C = view.c
+MAIN_C = main.c
+
+SCREEN_O = screen.o
+ENTITY_O = entity.o
+VIEW_O = view.o
+MAIN_O = main.o
+
+OBJS_O = $(SCREEN_O)\
+	 $(ENTITY_O)\
+	 $(VIEW_O)\
+	 $(MAIN_O)

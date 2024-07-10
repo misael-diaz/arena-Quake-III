@@ -143,7 +143,7 @@ struct Span {
 	int v;
 }; // espan_t
 
-struct DataLight {
+struct DynamicLight {
 	struct Vector origin;
 	struct Vector color;
 	float intensity;
@@ -179,17 +179,17 @@ struct Surface {
 	char xpad[3];
 }; // surf_t
 
-struct RefreshDefinition {
+struct Refresh {
 	struct Entity *entities;
-	struct LigthStyle *lightstyles;
+	struct LightStyle *lightstyles;
 	struct Particle *particles;
-	struct DataLight *dlights;
+	struct DynamicLight *dlights;
 	Byte *areabits;
 	struct Vector vieworg;
 	struct Vector viewangles;
+	float blend[4]; // if changed, update View_RenderView() see NOTE therein
 	float fov_x;
 	float fov_y;
-	float blend[4];
 	float time;
 	int x;
 	int y;

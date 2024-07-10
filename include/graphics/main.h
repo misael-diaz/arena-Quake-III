@@ -3,6 +3,7 @@
 
 void Refresh_Init(void);
 void Refresh_BeginFrame(void);
+void Refresh_RenderFrame(struct Refresh *refresh);
 void Refresh_EndFrame(void);
 void Refresh_Shutdown(void);
 void Refresh_Free(void);

@@ -39,6 +39,10 @@ COM_FS_O = ../common/filesystem.o
 COM_CTRLVAR_O = ../common/CtrlVar.o
 COM_CMODEL_O = ../common/cmodel.o
 COM_MAIN_O = ../common/main.o
+CL_SCREEN_O = ../client/screen.o
+CL_VIEW_O = ../client/view.o
+CL_MAIN_O = ../client/main.o
+CL_ENTITY_O = ../client/entity.o
 MAIN_O = main.o
 OBJECTS_O = $(UTIL_O)\
 	    $(VIDEO_O)\
@@ -54,5 +58,9 @@ OBJECTS_O = $(UTIL_O)\
 	    $(COM_CTRLVAR_O)\
 	    $(COM_CMODEL_O)\
 	    $(COM_MAIN_O)\
+	    $(CL_SCREEN_O)\
+	    $(CL_ENTITY_O)\
+	    $(CL_VIEW_O)\
+	    $(CL_MAIN_O)\
 	    $(MAIN_O)
 BIN = quake-III.bin

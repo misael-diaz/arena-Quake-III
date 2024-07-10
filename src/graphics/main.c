@@ -20,8 +20,10 @@ extern struct Video Video;
 extern struct Vector modelorg;
 extern int mod_registration_sequence;
 
-struct CVar *graphics_mipcap;
-struct CVar *graphics_mipscale;
+struct Entity *currentEntity = NULL;
+struct CVar *graphics_mipcap = NULL;
+struct CVar *graphics_mipscale = NULL;
+struct CVar *r_lightlevel = NULL;
 struct Model *r_worldmodel = NULL;
 struct CacheSurface *d_initial_rover = NULL;
 struct ModelLeaf *r_viewleaf = NULL;
@@ -32,10 +34,11 @@ short *d_pzbuffer = NULL;
 short *zspantable[MAXHEIGHT];
 
 struct GraphState GraphState;
-struct OldRefreshDefinition oldRefDef;
-struct RefreshDefinition refresh;
+struct OldRefresh oldRefDef;
+struct Refresh refresh;
 struct ModelPlane screenEdge[NUM_SCREEN_EDGES];
 struct ClipPlane view_clipPlanes[NUM_VIEW_CLIP_PLANES];
+struct LightStyle r_lightstyles[MAX_LIGHT_STYLES];
 struct Vector r_origin;
 struct Vector base_vpn;
 struct Vector base_vright;
@@ -46,6 +49,7 @@ struct Vector vup;
 int *pfrustum_indexes[NUM_VIEW_CLIP_PLANES];
 int r_frustum_indexes[NUM_VIEW_CLIP_PLANES * (2 * NUM_AXES)];
 int d_scantable[MAXHEIGHT];
+unsigned int d_8to24table[256];
 static float basemip[NUM_MIPS - 1] = {1.0, 0.5 * 0.8, 0.25 * 0.8};
 float d_scalemip[NUM_MIPS - 1];
 float xOrigin = 0;
@@ -67,6 +71,7 @@ int r_amodels_drawn = 0;
 int r_outofsurfaces = 0;
 int r_outofedges = 0;
 int r_framecount = 1;
+int r_oldviewcluster = 0;
 int r_viewcluster = 0;
 int r_screenwidth = 0;
 int d_zrowbytes = 0;
@@ -83,9 +88,11 @@ int d_aflatcolor = 0;
 int d_minmip = 0;
 bool d_roverwrapped = false;
 
-static struct CVar *vid_gamma;
-static struct CVar *vid_fullscreen;
-static struct CVar *graphics_mode;
+static struct CVar *r_novis = NULL;
+static struct CVar *r_drawEntities = NULL;
+static struct CVar *vid_gamma = NULL;
+static struct CVar *vid_fullscreen = NULL;
+static struct CVar *graphics_mode = NULL;
 static struct Image *r_notexture_mip = NULL;
 static struct ClipPlane view_clipplanes[4];
 static unsigned int curpalette[256];
@@ -283,6 +290,86 @@ void Refresh_SetUpFrustumIndexes (void)
 	}
 }
 
+void Refresh_MarkLeaves (void)
+{
+	if (r_oldviewcluster == r_viewcluster && !r_novis->data && r_viewcluster != -1) {
+		return;
+	}
+
+	Q_Shutdown();
+	// we don't expect this to be needed for now so we want to catch this later
+	fprintf(stderr, "Refresh_MarkLeaves: ImpError\n");
+	exit(EXIT_FAILURE);
+}
+
+void Refresh_PushDynamicLights (void)
+{
+	// dlights is zero so there's nothing to do at this point in dev so we skipped
+	return;
+}
+
+void Refresh_EdgeDrawing (void)
+{
+	if (refresh.RDFlags & RDF_NOWORLDMODEL) {
+		return;
+	}
+
+	Q_Shutdown();
+	// we don't expect this to be needed for now so we want to catch this later
+	fprintf(stderr, "Refresh_EdgeDrawing: ImpError\n");
+	exit(EXIT_FAILURE);
+}
+
+void Refresh_DrawAlphaSurfaces (void)
+{
+	// test not in original but should be unless I missed something
+	if (refresh.RDFlags & RDF_NOWORLDMODEL) {
+		return;
+	}
+
+	Q_Shutdown();
+	fprintf(stderr, "Refresh_DrawAlphaSurfaces: ImpError\n");
+	exit(EXIT_FAILURE);
+}
+
+void Refresh_SetLightLevel (void)
+{
+	struct Entity *ent = currentEntity;
+	if ((refresh.RDFlags & RDF_NOWORLDMODEL) || !r_drawEntities->data || !ent) {
+		// NOTE: original code sets it directly contrary to what they say about
+		// CVar's should not be changed by external functions
+		CVAR_FullSetCVar("r_lightlevel", "150", 0);
+		// maybe they meant not to trigger other parts of the code via modified
+		// so I am setting it to false here, just a hunch
+		r_lightlevel->modified = false;
+		return;
+	}
+
+	Q_Shutdown();
+	// we don't expect this to be needed for now so we want to catch this later
+	fprintf(stderr, "Refresh_SetLightLevel: ImpError\n");
+	exit(EXIT_FAILURE);
+}
+
+void Refresh_CalculatePalette (void)
+{
+	static bool modified = false;
+	float alpha = refresh.blend[3]; // TODO: define RB_ALPHA or someting like that
+	if (alpha <= 0) {
+		if (modified) {
+			Refresh_GammaCorrectAndSetPalette((Byte const*) d_8to24table);
+			modified = false;
+			return;
+		}
+		return;
+	}
+
+	Q_Shutdown();
+	// we don't expect this to be needed for now so we want to catch this later
+	fprintf(stderr, "Refresh_CalculatePalette: ImpError\n");
+	exit(EXIT_FAILURE);
+}
+
 void Refresh_SetupFrame (void)
 {
 	if (fullbright->modified) {
@@ -359,15 +446,21 @@ void Refresh_SetupFrame (void)
 	d_aflatcolor = 0;
 }
 
-void Refresh_RenderFrame (struct RefreshDefinition *RD)
+void Refresh_RenderFrame (struct Refresh *RD)
 {
 	refresh = *RD;
 
 	VectorCopy(&RD->vieworg, &oldRefDef.vieworg);
 	VectorCopy(&RD->viewangles, &oldRefDef.viewangles);
 
+	// TODO: there's some work to do here
 	Refresh_SetupFrame();
-	// TODO: there's also a lot to do here
+	Refresh_MarkLeaves();
+	Refresh_PushDynamicLights();
+	Refresh_EdgeDrawing();
+	Refresh_DrawAlphaSurfaces();
+	Refresh_SetLightLevel();
+	Refresh_CalculatePalette();
 }
 
 void Refresh_Register (void)
@@ -378,6 +471,9 @@ void Refresh_Register (void)
 	graphics_mode = CVAR_GetCVar("graphics_mode", "8", 0);
 	graphics_mipcap = CVAR_GetCVar("graphics_mipcap", "0", 0);
 	graphics_mipscale = CVAR_GetCVar("graphics_mipscale", "1", 0);
+	r_novis = CVAR_GetCVar("r_novis", "0", 0);
+	r_drawEntities = CVAR_GetCVar("r_drawEntities", "1", 0);
+	r_lightlevel = CVAR_GetCVar("r_lightlevel", "0", 0);
 
 	vid_gamma->modified = true;
 	graphics_mode->modified = true;

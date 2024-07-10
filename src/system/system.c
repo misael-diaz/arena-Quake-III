@@ -10,13 +10,26 @@
 long Sys_ClockNanoSeconds (void)
 {
 	struct timespec tp;
-	int err = clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+	int err = clock_gettime(CLOCK_MONOTONIC, &tp);
 	if (err) {
 		fprintf(stderr, "Sys_ClockNanoSeconds: %s\n", strerror(errno));
 		Util_Clear();
 		exit(EXIT_FAILURE);
 	}
 	long time = ((1000000000L * tp.tv_sec) + tp.tv_nsec);
+	return time;
+}
+
+long Sys_ClockMilliSeconds (void)
+{
+	struct timespec tp;
+	int err = clock_gettime(CLOCK_MONOTONIC, &tp);
+	if (err) {
+		fprintf(stderr, "Sys_ClockMilliSeconds: %s\n", strerror(errno));
+		Util_Clear();
+		exit(EXIT_FAILURE);
+	}
+	long time = ((1000L * tp.tv_sec) + (tp.tv_nsec / 1000000L));
 	return time;
 }
 

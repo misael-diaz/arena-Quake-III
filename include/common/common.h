@@ -2,6 +2,7 @@
 #define GUARD_QUAKE_COMMON_COMMON_H
 
 #include "defs/qfiles.h"
+#include "defs/qcommon.h"
 #include "types/Byte.h"
 #include "structs/Vector.h"
 #include "structs/CtrlVar.h"

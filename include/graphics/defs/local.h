@@ -1,10 +1,9 @@
-#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_H
-#define GUARD_QUAKE_GRAPHICS_LOCAL_H
+#ifndef GUARD_QUAKE_GRAPHICS_DEFS_LOCAL_H
+#define GUARD_QUAKE_GRAPHICS_DEFS_LOCAL_H
 
-#include "local/enums/local.h"
-#include "local/structs/local.h"
-
-void D_FlushCaches(void);
+#define CACHE_SIZE 32
+#define XCENTERING 0.5f
+#define YCENTERING 0.5f
 
 #endif
 
@@ -13,7 +12,7 @@ void D_FlushCaches(void);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/local.h
+source: include/graphics/defs/local.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

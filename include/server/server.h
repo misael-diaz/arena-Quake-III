@@ -1,10 +1,9 @@
-#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_H
-#define GUARD_QUAKE_GRAPHICS_LOCAL_H
+#ifndef GUARD_QUAKE_SERVER_SERVER_H
+#define GUARD_QUAKE_SERVER_SERVER_H
 
-#include "local/enums/local.h"
-#include "local/structs/local.h"
-
-void D_FlushCaches(void);
+struct ClientFrame {
+        player_state_t ps;
+}; // client_frame_t
 
 #endif
 
@@ -13,7 +12,7 @@ void D_FlushCaches(void);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/local.h
+source: src/server/server.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

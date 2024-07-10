@@ -55,7 +55,7 @@ struct ViewRectangle {
 	int y;
 }; // vrect_t;
 
-struct OldRefreshDefinition {
+struct OldRefresh {
 	struct ViewRectangle viewRect;
 	struct Vector vieworg;
 	struct Vector viewangles;

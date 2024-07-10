@@ -5,6 +5,7 @@
 
 void Sys_DelayMillis(void);
 long Sys_ClockNanoSeconds(void);
+long Sys_ClockMilliSeconds(void);
 long Sys_ElapsedTime(struct timespec *tp_start, struct timespec *tp_end);
 
 #endif

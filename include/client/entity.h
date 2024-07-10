@@ -1,10 +1,13 @@
-#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_H
-#define GUARD_QUAKE_GRAPHICS_LOCAL_H
+#ifndef GUARD_QUAKE_CLIENT_ENTITY_H
+#define GUARD_QUAKE_CLIENT_ENTITY_H
 
-#include "local/enums/local.h"
-#include "local/structs/local.h"
-
-void D_FlushCaches(void);
+void Entity_AddTemporaryEntities(void);
+void Entity_AddParticles(void);
+void Entity_AddDLights(void);
+void Entity_AddLightStyles(void);
+void Entity_AddPacketEntities(struct Frame *frame);
+void Entity_CalculateViewValues(void);
+void Entity_AddEntities(void);
 
 #endif
 
@@ -13,7 +16,7 @@ void D_FlushCaches(void);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/local.h
+source: src/client/entity.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

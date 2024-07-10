@@ -1,6 +1,8 @@
 #ifndef GUARD_QUAKE_COMMON_STRUCTS_CMODEL_H
 #define GUARD_QUAKE_COMMON_STRUCTS_CMODEL_H
 
+#include "../../common/defs/qfiles.h"
+
 struct CSurface {
 	char name[MAX_CSURFACE_NAME_SIZE];
 	int flags;

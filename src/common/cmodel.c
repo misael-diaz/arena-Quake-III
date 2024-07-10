@@ -526,7 +526,7 @@ static void CM_InitBoxHull (void)
 		int const side = (i & 1);
 		int const planenum = side + (2 * i);
 		struct CPlane *plane = &planes[planenum];
-		struct CBrushSide *brushside = &box_brushsides[i];
+		struct CBrushSide *brushside = &brushsides[i];
 		brushside->plane = plane;
 		brushside->surface = &nullsurface;
 	}

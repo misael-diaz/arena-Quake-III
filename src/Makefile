@@ -26,9 +26,11 @@ Graphics: Video Vector
 	@$(MAKE) -C graphics
 Common: Util Graphics
 	@$(MAKE) -C common
+Client: Common
+	@$(MAKE) -C client
 System: Util
 	@$(MAKE) -C system
-Quake: Common System
+Quake: Common System Client
 	@$(MAKE) -C main
 clean:
 	@$(MAKE) -C util clean

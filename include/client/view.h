@@ -1,10 +1,9 @@
-#ifndef GUARD_QUAKE_GRAPHICS_LOCAL_H
-#define GUARD_QUAKE_GRAPHICS_LOCAL_H
+#ifndef GUARD_QUAKE_CLIENT_VIEW_H
+#define GUARD_QUAKE_CLIENT_VIEW_H
 
-#include "local/enums/local.h"
-#include "local/structs/local.h"
-
-void D_FlushCaches(void);
+void View_PrepRefresh(void);
+void View_CalculateViewValues(void);
+void View_RenderView(void);
 
 #endif
 
@@ -13,7 +12,7 @@ void D_FlushCaches(void);
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/local.h
+source: src/client/view.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

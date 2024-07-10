@@ -2,6 +2,7 @@
 #define GUARD_QUAKE_COMMON_CONTROL_VARIABLES_H
 
 void CVAR_Init(void);
+void CVAR_FullSetCVar(char const *key, char const *value, int const flags);
 struct CVar *CVAR_GetCVar(char const *key, char const *value, int const flags);
 
 #endif
