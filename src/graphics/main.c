@@ -12,26 +12,34 @@
 #include "game.h"
 #include "util.h"
 
-#define NUM_MIPS 4
-
 extern Display *display;
 extern struct CacheSurface *cs_rover;
+extern struct CacheSurface *d_initial_rover;
+extern Byte *d_viewbuffer;
+extern unsigned int *d_8to24table;
+extern float *d_scalemip;
 extern struct Video Video;
+extern int d_spanpixcount;
+extern int d_aflatcolor;
+extern int d_minmip;
+extern bool d_roverwrapped;
+
 extern struct Vector modelorg;
 extern int mod_registration_sequence;
 
 struct Entity *currentEntity = NULL;
 struct CVar *graphics_mipcap = NULL;
 struct CVar *graphics_mipscale = NULL;
+struct CVar *graphics_maxsurfs = NULL;
 struct CVar *r_lightlevel = NULL;
+struct Image *r_notexture_mip = NULL;
 struct Model *r_worldmodel = NULL;
-struct CacheSurface *d_initial_rover = NULL;
 struct ModelLeaf *r_viewleaf = NULL;
+struct ModelSurface *r_skysurfaces = NULL;
+struct ModelVertex *r_skyvertexes = NULL;
+struct ModelEdge *r_skyedges = NULL;
+int *r_skysurfedges = NULL;
 struct CVar *fullbright = NULL;
-Byte *d_viewbuffer = NULL;
-// NOTE: if you change the type of d_pzbuffer you must also update d_zrowbytes accordingly
-short *d_pzbuffer = NULL;
-short *zspantable[MAXHEIGHT];
 
 struct GraphState GraphState;
 struct OldRefresh oldRefDef;
@@ -48,10 +56,8 @@ struct Vector vright;
 struct Vector vup;
 int *pfrustum_indexes[NUM_VIEW_CLIP_PLANES];
 int r_frustum_indexes[NUM_VIEW_CLIP_PLANES * (2 * NUM_AXES)];
-int d_scantable[MAXHEIGHT];
-unsigned int d_8to24table[256];
-static float basemip[NUM_MIPS - 1] = {1.0, 0.5 * 0.8, 0.25 * 0.8};
-float d_scalemip[NUM_MIPS - 1];
+int r_leaftovis[MAX_MAP_LEAFS];
+int r_vistoleaf[MAX_MAP_LEAFS];
 float xOrigin = 0;
 float yOrigin = 0;
 float xcenter = 0;
@@ -62,7 +68,6 @@ float xscaleinv = 0;
 float yscaleinv = 0;
 float xscaleshrink = 0;
 float yscaleshrink = 0;
-float scale_for_mip = 0;
 int c_faceclip = 0;
 int r_polycount = 0;
 int r_drawnpolycount = 0;
@@ -74,92 +79,37 @@ int r_framecount = 1;
 int r_oldviewcluster = 0;
 int r_viewcluster = 0;
 int r_screenwidth = 0;
-int d_zrowbytes = 0;
-int d_zwidth = 0;
-int d_pix_min = 0;
-int d_pix_max = 0;
-int d_pix_shift = 0;
-int d_viewRectX = 0;
-int d_viewRectY = 0;
-int d_spanpixcount = 0;
-int d_viewRectRight_particle = 0;
-int d_viewRectBottom_particle = 0;
-int d_aflatcolor = 0;
-int d_minmip = 0;
-bool d_roverwrapped = false;
+int r_cnumsurfs = 0;
+int r_numVisibleLeafs = 0;
 
 static struct CVar *r_novis = NULL;
 static struct CVar *r_drawEntities = NULL;
 static struct CVar *vid_gamma = NULL;
 static struct CVar *vid_fullscreen = NULL;
 static struct CVar *graphics_mode = NULL;
-static struct Image *r_notexture_mip = NULL;
 static struct ClipPlane view_clipplanes[4];
+static float basemip[NUM_MIPS - 1] = {1.0, 0.5 * 0.8, 0.25 * 0.8};
 static unsigned int curpalette[256];
 static Byte r_notexture_buffer[1024];
 
-void Driver_Patch (void)
+struct Image *Refresh_FindImage (char const *image_name)
 {
-	return;	// no driver patch required for X86_64
+	return Image_FindImage(image_name);
 }
 
-void Driver_ViewChanged (void)
+struct Model *Refresh_RegisterModel (char const *model_name)
 {
-	scale_for_mip = (yscale > xscale)? yscale : xscale;
+	return Model_RegisterModel(model_name);
+}
 
-	if (!refresh.width || !refresh.height) {
-		Q_Shutdown();
-		fprintf(stderr, "Driver_ViewChanged: InitNewRefDefError\n");
-		exit(EXIT_FAILURE);
-	}
+void Refresh_BeginRegistration (char const *model_name)
+{
+	Model_BeginRegistration(model_name);
+}
 
-	if (!d_pzbuffer) {
-		Q_Shutdown();
-		fprintf(stderr, "Driver_ViewChanged: NullZBufferError\n");
-		exit(EXIT_FAILURE);
-	}
-
-	d_zrowbytes = Video.width * sizeof(*d_pzbuffer);
-	d_zwidth = Video.width;
-
-	// note that 320 is the smallest supported video mode width
-	d_pix_min = (oldRefDef.viewRect.width / 320);
-	if (d_pix_min < 1) {
-		d_pix_min = 1;
-	}
-
-	d_pix_max = ((int) (((float) oldRefDef.viewRect.width) / (320.0f / 4.0f) + 0.5f));
-	if (d_pix_max < 1) {
-		d_pix_max = 1;
-	}
-
-	// NOTE: might break the code if we attempt an unsupported video mode
-	d_pix_shift = 8 - ((int) (((float) oldRefDef.viewRect.width) / 320.0f + 0.5f));
-	if (oldRefDef.viewRect.width > 1600) {
-		Q_Shutdown();
-		fprintf(stderr, "Driver_ViewChanged: UnsupportedVideoMode\n");
-		exit(EXIT_FAILURE);
-	}
-
-	d_viewRectX = oldRefDef.viewRect.x;
-	d_viewRectY = oldRefDef.viewRect.y;
-	d_viewRectRight_particle = oldRefDef.viewRectRight - d_pix_max;
-	d_viewRectBottom_particle = oldRefDef.viewRectBottom - d_pix_max;
-
-	for (int i = 0; i != Video.height; ++i) {
-		d_scantable[i] = i * r_screenwidth;
-		zspantable[i] = d_pzbuffer + i * d_zwidth;
-	}
-
-	if (refresh.RDFlags & RDF_NOWORLDMODEL) {
-		int d_pzbuffer_sz = Video.width * Video.height * sizeof(*d_pzbuffer);
-		memset(d_pzbuffer, 0xff, d_pzbuffer_sz);
-		int black = 0;
-		int color = black;
-		Draw_Fill(refresh.x, refresh.y, refresh.width, refresh.height, color);
-	}
-
-	Driver_Patch();
+void Refresh_EndRegistration (void)
+{
+	Model_EndRegistration();
 }
 
 void Refresh_ViewChanged (struct ViewRectangle *VR)
@@ -374,7 +324,7 @@ void Refresh_SetupFrame (void)
 {
 	if (fullbright->modified) {
 		fullbright->modified = false;
-		D_FlushCaches();
+		Driver_FlushCaches();
 	}
 
 	++r_framecount;
@@ -463,14 +413,29 @@ void Refresh_RenderFrame (struct Refresh *RD)
 	Refresh_CalculatePalette();
 }
 
+void Refresh_NewMap (void)
+{
+	r_viewcluster = -1;
+	r_cnumsurfs = graphics_maxsurfs->data;
+
+	if (r_cnumsurfs <= MIN_NUM_SURFACES) {
+		r_cnumsurfs = MIN_NUM_SURFACES;
+	}
+
+	// TODO: implement
+}
+
 void Refresh_Register (void)
 {
 	fullbright = CVAR_GetCVar("fullbright", "0", 0);
 	vid_gamma = CVAR_GetCVar("vid_gamma", "1", 0);
 	vid_fullscreen = CVAR_GetCVar("vid_fullscreen", "0", 0);
+
 	graphics_mode = CVAR_GetCVar("graphics_mode", "8", 0);
 	graphics_mipcap = CVAR_GetCVar("graphics_mipcap", "0", 0);
 	graphics_mipscale = CVAR_GetCVar("graphics_mipscale", "1", 0);
+	graphics_maxsurfs = CVAR_GetCVar("graphics_maxsurfs", "0", 0);
+
 	r_novis = CVAR_GetCVar("r_novis", "0", 0);
 	r_drawEntities = CVAR_GetCVar("r_drawEntities", "1", 0);
 	r_lightlevel = CVAR_GetCVar("r_lightlevel", "0", 0);

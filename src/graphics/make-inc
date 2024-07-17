@@ -26,20 +26,26 @@ HEADERS = $(UTIL_H)\
 BSP_C = bsp.c
 MODEL_C = model.c
 DRAW_C = draw.c
+DRIVER_C = driver.c
 SURFACE_C = surface.c
 GRAPHICS_C = graphics.c
+IMAGE_C = image.c
 MAIN_C = main.c
 
 BSP_O = bsp.o
 DRAW_O = draw.o
+DRIVER_O = driver.o
 MODEL_O = model.o
 SURFACE_O = surface.o
 GRAPHICS_O = graphics.o
+IMAGE_O = image.o
 MAIN_O = main.o
 OBJS_O = $(BSP_O)\
 	 $(DRAW_O)\
+	 $(DRIVER_O)\
 	 $(MODEL_O)\
 	 $(MODEL_O)\
 	 $(SURFACE_O)\
 	 $(GRAPHICS_O)\
+	 $(IMAGE_O)\
 	 $(MAIN_O)

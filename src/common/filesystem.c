@@ -153,7 +153,7 @@ void FS_FCloseFile (FILE **file)
 	*file = NULL;
 }
 
-int FS_FOpenFile (char const *filename, FILE **file)
+size_t FS_FOpenFile (char const *filename, FILE **file)
 {
 	if (!file) {
 		Q_Shutdown();
@@ -198,14 +198,14 @@ int FS_FOpenFile (char const *filename, FILE **file)
 	// we want to stop here if the file is not found
 	fprintf(stderr, "FS_FOpenFile: FileNotFoundError\n");
 	exit(EXIT_FAILURE);
-	return -1;
+	return SIZE_MAX;
 }
 
-int FS_FLoadFile (char const *filename, void **buffer)
+size_t FS_FLoadFile (char const *filename, void **buffer)
 {
 	FILE *file[] = {NULL};
-	int const len = FS_FOpenFile(filename, file);
-	if (!*file || len == -1) {
+	size_t const len = FS_FOpenFile(filename, file);
+	if (!*file || len == SIZE_MAX) {
 		Q_Shutdown();
 		fprintf(stderr, "FS_FLoadFile: FileNotFoundError\n");
 		exit(EXIT_FAILURE);

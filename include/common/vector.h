@@ -1,6 +1,7 @@
 #ifndef GUARD_QUAKE_COMMON_VECTOR_H
 #define GUARD_QUAKE_COMMON_VECTOR_H
 
+float VectorLength(struct Vector const *vec);
 float DotProduct(struct Vector const *u, struct Vector const *v);
 void VectorCopy(const struct Vector *u, struct Vector *v);
 void VectorNormalize(struct Vector *vec);

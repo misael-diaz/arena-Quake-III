@@ -24,6 +24,9 @@ $(BSP_O): $(HEADERS) $(BSP_C)
 $(DRAW_O): $(HEADERS) $(DRAW_C)
 	$(CC) $(INC) $(CCOPT) -c $(DRAW_C) -o $(DRAW_O)
 
+$(DRIVER_O): $(HEADERS) $(DRIVER_C)
+	$(CC) $(INC) $(CCOPT) -c $(DRIVER_C) -o $(DRIVER_O)
+
 $(MODEL_O): $(HEADERS) $(MODEL_C)
 	$(CC) $(INC) $(CCOPT) -c $(MODEL_C) -o $(MODEL_O)
 
@@ -32,6 +35,9 @@ $(SURFACE_O): $(HEADERS) $(SURFACE_C)
 
 $(GRAPHICS_O): $(HEADERS) $(GRAPHICS_C)
 	$(CC) $(INC) $(CCOPT) -c $(GRAPHICS_C) -o $(GRAPHICS_O)
+
+$(IMAGE_O): $(HEADERS) $(IMAGE_C)
+	$(CC) $(INC) $(CCOPT) -c $(IMAGE_C) -o $(IMAGE_O)
 
 $(MAIN_O): $(HEADERS) $(MAIN_C)
 	$(CC) $(INC) $(CCOPT) -c $(MAIN_C) -o $(MAIN_O)

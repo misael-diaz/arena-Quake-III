@@ -1,18 +1,7 @@
-#ifndef GUARD_QUAKE_GRAPHICS_DEFS_LOCAL_H
-#define GUARD_QUAKE_GRAPHICS_DEFS_LOCAL_H
+#ifndef GUARD_QUAKE_GRAPHICS_IMAGE_H
+#define GUARD_QUAKE_GRAPHICS_IMAGE_H
 
-#define NUM_MIPS 4
-#define MAX_NUM_KNOWN_MODELS 256
-#define CACHE_SIZE 32
-#define XCENTERING 0.5f
-#define YCENTERING 0.5f
-
-#define SURFACE_BACKPLANE        2
-#define SURFACE_DRAW_SKY         4
-#define SURFACE_DRAW_TURBULENCE  0x10
-#define SURFACE_DRAW_BACKGROUND  0x40
-#define SURFACE_DRAW_SKYBOX      0x80
-#define SURFACE_FLOW             0x100
+struct Image *Image_FindImage(char const *image_name);
 
 #endif
 
@@ -21,7 +10,7 @@
 Quake-III                                             June 07, 2024
 
 author: @misael-diaz
-source: include/graphics/defs/local.h
+source: include/graphics/image.h
 
 Copyright (C) 2024 Misael Díaz-Maldonado
 

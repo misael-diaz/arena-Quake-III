@@ -620,14 +620,14 @@ struct CModel *CM_LoadMap (char const *name)
 	map_name[0] = 0;
 
 	void *buf = NULL;
-	int length = FS_FLoadFile(name, &buf);
+	FS_FLoadFile(name, &buf);
 	if (!buf) {
 		Q_Shutdown();
 		fprintf(stderr, "CM_LoadMap: LoadMapError\n");
 		exit(EXIT_FAILURE);
 	}
 
-	// missing code here
+	// FIXME: missing code here
 
 	struct DataHeader header = *((struct DataHeader const*) buf);
         if (header.ident != ID_BSP_HEADER) {

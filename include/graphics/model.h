@@ -5,6 +5,10 @@
 #include "model/structs/model.h"
 
 struct ModelLeaf *Model_PointInLeaf(struct Vector const *r, struct Model *model);
+struct Model *Model_RegisterModel(char const *model_name);
+void Model_FreeModel(struct Model *model);
+void Model_BeginRegistration(char const *model_name);
+void Model_EndRegistration(void);
 void Model_Init(void);
 
 #endif

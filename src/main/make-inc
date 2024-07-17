@@ -31,8 +31,10 @@ VECTOR_O = ../vector/vector.o
 G_BSP_O = ../graphics/bsp.o
 G_DRAW_O = ../graphics/draw.o
 G_MODEL_O = ../graphics/model.o
+G_DRIVER_O = ../graphics/driver.o
 G_SURFACE_O = ../graphics/surface.o
 G_MAIN_O = ../graphics/main.o
+G_IMAGE_O = ../graphics/image.o
 GRAPHICS_O = ../graphics/graphics.o
 SYSTEM_O = ../system/system.o
 COM_FS_O = ../common/filesystem.o
@@ -50,7 +52,9 @@ OBJECTS_O = $(UTIL_O)\
 	    $(G_BSP_O)\
 	    $(G_DRAW_O)\
 	    $(G_MODEL_O)\
+	    $(G_DRIVER_O)\
 	    $(G_SURFACE_O)\
+	    $(G_IMAGE_O)\
 	    $(G_MAIN_O)\
 	    $(GRAPHICS_O)\
 	    $(SYSTEM_O)\

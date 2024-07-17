@@ -44,6 +44,11 @@ float DotProduct (struct Vector const *u, struct Vector const *v)
 	return ((x1 * x2) + (y1 * y2) + (z1 * z2));
 }
 
+float VectorLength (struct Vector const *vec)
+{
+	return sqrtf(DotProduct(vec, vec));
+}
+
 void VectorNormalize (struct Vector *vec)
 {
 	float const x = vec->x;

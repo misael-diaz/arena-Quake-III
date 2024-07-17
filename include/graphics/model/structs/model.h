@@ -9,6 +9,15 @@
 #include "../../local/structs/local.h"
 #include "../../model/enums/model.h"
 
+struct ModelVertex {
+	struct Vector position;
+}; // mvertex_t
+
+struct ModelEdge {
+	unsigned short vertexnums[2];
+	unsigned int cachedEdgeOffset;
+}; // medge_t
+
 struct ModelPlane {
         struct Vector normal;
         float dist;
@@ -17,8 +26,8 @@ struct ModelPlane {
         Byte pad[10];
 }; // mplane_t
 
-struct ModelTexInfo {
-        struct ModelTexInfo *next;
+struct ModelTexture {
+        struct ModelTexture *next;
         struct Image *image;
         float vecs[2][4];
         float mipAdjust;
@@ -30,7 +39,7 @@ struct ModelSurface {
 	struct CacheSurface *cacheSpots[MIPLEVELS];
 	struct ModelSurface *nextAlphaSurface;
 	struct ModelPlane *plane;
-	struct ModelTexInfo *texinfo;
+	struct ModelTexture *texture;
 	Byte *samples;
 	Byte styles[MAXLIGHTMAPS];
 	int visframe;
@@ -62,7 +71,7 @@ struct ModelLeaf {
 	int visframe;
 	int minmaxs[6];
 	struct ModelNode *parent;
-	struct ModelSurface **firstmarksurface;
+	struct ModelSurface **firstMarkedSurface;
 	int cluster;
 	int area;
 	int numMarkedSurfaces;
@@ -71,30 +80,21 @@ struct ModelLeaf {
 	long: 64;
 }; // mleaf_t
 
-struct ModelEdge {
-        unsigned int v[2];
-        unsigned int cachedEdgeOffset;
-}; // medge_t
-
-struct Vertex {
-	struct Vector position;
-}; // mvertex_t
-
 struct Model {
 	struct Image *skins[MAX_MD2SKINS];
 	struct DataModel *submodels;
 	struct ModelSurface *surfaces;
-	struct ModelSurface **marksurfaces;
+	struct ModelSurface **markedSurfaces;
 	struct ModelPlane *planes;
 	struct ModelNode *nodes;
 	struct ModelLeaf *leafs;
 	struct ModelEdge *edges;
-	struct Vertex *vertexes;
-	struct ModelTexInfo *texinfo;
-	struct DataVisibility *vis;
+	struct ModelVertex *vertexes;
+	struct ModelTexture *textures;
+	struct DataVisibility *visibility;
 	int *surfedges;
 	Byte *lightdata;
-	void *extradata;
+	void *hunk;
 	struct Vector mins;
 	struct Vector maxs;
 	struct Vector clipmins;
@@ -104,8 +104,8 @@ struct Model {
 	int registration_sequence;
 	int numframes;
 	int flags;
-	int firstmodelsurface;
-	int nummodelsurfaces;
+	int firstModelSurface;
+	int numModelSurfaces;
 	int numsubmodels;
 	int numplanes;
 	int numleafs;
@@ -113,11 +113,11 @@ struct Model {
 	int numedges;
 	int numnodes;
 	int firstnode;
-	int numtexinfo;
+	int numtextures;
 	int numsurfaces;
 	int numsurfedges;
-	int nummarksurfaces;
-	int extradatasize;
+	int numMarkedSurfaces;
+	int hunksize;
 	bool clipbox;
 }; // model_t
 

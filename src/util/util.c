@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 #include <errno.h>
 
@@ -78,8 +79,10 @@ void Util_Clear (void)
 void *Util_Malloc (size_t const sz)
 {
 	size_t const size = sizeof(struct MemChain) + sz;
-	void *p = malloc(size);
-	if (!p) {
+	void *p = NULL;
+	int const rc = posix_memalign(p, CACHELINE_SIZE, size);
+	if (rc || !p) {
+		errno = rc; // we have to set errno, see man posix_memalign
 		fprintf(stderr, "Util_Malloc: %s\n", strerror(errno));
 		Util_Clear();
 		exit(EXIT_FAILURE);
@@ -111,6 +114,11 @@ char *Util_CopyString (const char *string)
 	const char *src = string;
 	char *dst = (char*) ptr;
 	return strcpy(dst, src);
+}
+
+void Util_Init (void)
+{
+	static_assert(sizeof(struct MemChain) == CACHELINE_SIZE);
 }
 
 /*

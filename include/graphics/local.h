@@ -4,8 +4,6 @@
 #include "local/enums/local.h"
 #include "local/structs/local.h"
 
-void D_FlushCaches(void);
-
 #endif
 
 /*

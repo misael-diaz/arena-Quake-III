@@ -26,6 +26,8 @@
 #define MAXWIDTH 1600
 #define MAX_MD2SKINS 32
 #define MAXLIGHTMAPS 4
+#define NUM_STACK_SURFACES 1000
+#define MIN_NUM_SURFACES NUM_STACK_SURFACES
 #define MIPLEVELS 4
 #define MODEL_NOVIS_SIZE (MAX_MAP_LEAFS / 8)
 
@@ -56,6 +58,11 @@
 
 #define CONTENTS_SOLID   0x00000001
 #define CONTENTS_MONSTER 0x02000000
+#define CONTENTS_NODE ((int) 0xffffffff)
+
+#define SURFACE_SKY     0x4
+#define SURFACE_WARP    0x8
+#define SURFACE_FLOWING 0x40
 
 #endif
 

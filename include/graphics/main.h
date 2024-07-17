@@ -8,6 +8,9 @@ void Refresh_EndFrame(void);
 void Refresh_Shutdown(void);
 void Refresh_Free(void);
 void Refresh_Register(void);
+void Refresh_NewMap(void);
+struct Image *Refresh_FindImage (char const *image_name);
+struct Model *Refresh_RegisterModel(char const *model_name);
 void Refresh_GammaCorrectAndSetPalette(Byte const *palette);
 
 #endif

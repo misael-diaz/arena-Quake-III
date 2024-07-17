@@ -1,10 +1,23 @@
 #ifndef GUARD_QUAKE_COMMON_STRUCTS_QFILES_H
 #define GUARD_QUAKE_COMMON_STRUCTS_QFILES_H
 
+#include "../../game/defs.h"
+
 struct Lump {
 	int fileofs;
 	int filelen;
 }; // lump_t
+
+struct MIPTexture {
+	char name[32];
+	unsigned int width;
+	unsigned int height;
+	unsigned int offsets[MIPLEVELS];
+	char animname[32];
+	int flags;
+	int contents;
+	int value;
+}; // miptex_t
 
 struct DataHeader {
 	int ident;
@@ -12,16 +25,24 @@ struct DataHeader {
 	struct Lump lumps[HEADER_LUMPS];
 }; // dheader_t
 
+struct DataVertex {
+        float point[3];
+}; // dvertex_t
+
+struct DataEdge {
+	unsigned short vertexnums[2];
+}; // dedge_t
+
 struct DataLeaf {
 	int contents;
 	short cluster;
 	short area;
 	short mins[3];
 	short maxs[3];
-	unsigned short firstleafface;
-	unsigned short numleaffaces;
-	unsigned short firstleafbrush;
-	unsigned short numleafbrushes;
+	unsigned short firstLeafFace;
+	unsigned short numLeafFaces;
+	unsigned short firstLeafBrush;
+	unsigned short numLeafBrushes;
 }; // dleaf_t
 
 struct DataPlane {
@@ -37,6 +58,16 @@ struct InfoTexture {
         char name[32];
         int nextInfoTexture;
 }; // texinfo_t
+
+struct DataSurface {
+        unsigned short planenum;
+        short side;
+        int firstedge;
+        short numedges;
+        short texturenum;
+        Byte styles[MAXLIGHTMAPS];
+        int lightofs;
+}; // dface_t
 
 struct DataBrush {
         int firstside;
@@ -54,8 +85,8 @@ struct DataModel {
 	struct Vector maxs;
 	struct Vector origin;
 	int headnode;
-	int firstface;
-	int numfaces;
+	int firstsurface;
+	int numsurfaces;
 }; // dmodel_t
 
 struct DataNode {
@@ -63,8 +94,8 @@ struct DataNode {
         int children[2];
         short mins[3];
         short maxs[3];
-        unsigned short firstface;
-        unsigned short numfaces;
+        unsigned short firstsurface;
+        unsigned short numsurfaces;
 }; // dnode_t
 
 struct DataArea {

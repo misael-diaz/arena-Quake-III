@@ -46,6 +46,29 @@ void Client_CalculateViewValues (void)
 	View_CalculateViewValues();
 }
 
+void Client_PrepRefresh (void)
+{
+	// hack config string check
+	char const *mapname = "demo";
+	Screen_UpdateScreen();
+	Refresh_BeginRegistration(mapname);
+	Screen_UpdateScreen();
+	Refresh_EndRegistration();
+	Screen_UpdateScreen();
+	client.refresh_prepped = true;
+	client.force_refresh = true;
+}
+
+void Client_RequestNextDownload (void)
+{
+	if (cls.state != CA_CONNECTED) {
+		fprintf(stdout, "Client_RequestNextDownload: Not Connected\n");
+		return;
+	}
+
+	Client_PrepRefresh();
+}
+
 void Client_InitLocal (void)
 {
 	cls.state = CA_DISCONNECTED;

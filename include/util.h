@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#define CACHELINE_SIZE 32
+
 void Util_Clear(void);
 void *Util_Free(void *p);
 void *Util_Malloc(size_t const sz);

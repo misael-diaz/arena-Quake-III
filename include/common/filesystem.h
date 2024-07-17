@@ -2,9 +2,10 @@
 #define GUARD_QUAKE_COMMON_FILESYSTEM_H
 
 #include <stdio.h>
+#include <stddef.h>
 
-int FS_FOpenFile(char const *filename, FILE **file);
-int FS_FLoadFile(char const *filename, void **buffer);
+size_t FS_FOpenFile(char const *filename, FILE **file);
+size_t FS_FLoadFile(char const *filename, void **buffer);
 void FS_FCloseFile(FILE **file);
 void FS_Init(void);
 

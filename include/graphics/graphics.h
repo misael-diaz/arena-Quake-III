@@ -7,6 +7,9 @@
 #include "draw.h"
 #include "model.h"
 #include "local.h"
+#include "driver.h"
+#include "surface.h"
+#include "image.h"
 #include "main.h"
 
 #endif
